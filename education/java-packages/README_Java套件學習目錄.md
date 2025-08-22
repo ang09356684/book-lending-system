@@ -24,7 +24,7 @@
   - 學習常用的註解 (@Data, @Getter, @Setter 等)
   - 在 Entity 類別中的應用
 
-### **2. Spring Data JPA** (即將建立)
+### **2. Spring Data JPA**
 - **檔案**: `02_Spring_Data_JPA套件說明.md`
 - **用途**: 簡化資料庫操作
 - **學習重點**:
@@ -32,27 +32,53 @@
   - 自定義查詢方法
   - 分頁和排序
 
-### **3. Spring Security** (即將建立)
-- **檔案**: `03_Spring_Security套件說明.md`
+### **3. Spring Data JPA實作原理**
+- **檔案**: `03_Spring_Data_JPA_實作原理.md`
+- **用途**: 深入了解Spring Data JPA的運作機制
+- **學習重點**:
+  - JPQL vs 原生SQL
+  - Dynamic Proxy機制
+  - 方法名稱解析原理
+
+### **4. Spring Security** (即將建立)
+- **檔案**: `04_Spring_Security套件說明.md`
 - **用途**: 處理認證和授權
 - **學習重點**:
   - JWT 認證機制
   - 角色權限控制
   - 安全配置
 
-### **4. JWT (JSON Web Token)** (即將建立)
-- **檔案**: `04_JWT套件說明.md`
+### **5. JWT (JSON Web Token)** (即將建立)
+- **檔案**: `05_JWT套件說明.md`
 - **用途**: 無狀態的認證機制
 - **學習重點**:
   - Token 的生成和驗證
   - 安全性和最佳實踐
 
-### **5. Springdoc OpenAPI** (即將建立)
-- **檔案**: `05_Springdoc_OpenAPI套件說明.md`
+### **6. Springdoc OpenAPI** (即將建立)
+- **檔案**: `06_Springdoc_OpenAPI套件說明.md`
 - **用途**: 自動生成 API 文件
 - **學習重點**:
   - Swagger UI 的使用
   - API 註解的撰寫
+
+### **7. Spring Bean註冊與依賴注入**
+- **檔案**: `06_Spring_Bean註冊與依賴注入.md`
+- **用途**: 理解Spring容器的核心概念
+- **學習重點**:
+  - Spring容器概念
+  - Bean註冊過程
+  - 依賴注入機制
+  - Bean生命週期和作用域
+
+### **8. 依賴注入方式對比**
+- **檔案**: `07_依賴注入方式對比.md`
+- **用途**: 深入理解不同依賴注入方式的差異
+- **學習重點**:
+  - 建構函式注入 vs Setter注入 vs 欄位注入
+  - 各種注入方式的優缺點
+  - 測試便利性對比
+  - 最佳實踐選擇
 
 ---
 
@@ -60,14 +86,16 @@
 
 ### **第一階段：基礎套件**
 1. **Lombok** - 簡化程式碼
-2. **Spring Data JPA** - 資料庫操作
+2. **Spring Bean註冊與依賴注入** - Spring核心概念
+3. **依賴注入方式對比** - 深入理解注入機制
+4. **Spring Data JPA** - 資料庫操作
 
 ### **第二階段：進階套件**
-3. **Spring Security** - 安全性
-4. **JWT** - 認證機制
+5. **Spring Security** - 安全性
+6. **JWT** - 認證機制
 
 ### **第三階段：工具套件**
-5. **Springdoc OpenAPI** - API 文件
+7. **Springdoc OpenAPI** - API 文件
 
 ---
 
@@ -115,7 +143,10 @@ touch TestJPA.java
 
 ### **完成度追蹤**
 - [x] Lombok 套件說明
-- [ ] Spring Data JPA 套件說明
+- [x] Spring Data JPA 套件說明
+- [x] Spring Data JPA 實作原理
+- [x] Spring Bean註冊與依賴注入
+- [x] 依賴注入方式對比
 - [ ] Spring Security 套件說明
 - [ ] JWT 套件說明
 - [ ] Springdoc OpenAPI 套件說明

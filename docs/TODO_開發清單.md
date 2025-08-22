@@ -98,23 +98,27 @@
 ### 🔧 **業務邏輯層開發**
 
 #### **階段5: Service層** ⏱️ 3小時
-- [ ] **使用者管理服務**
-  - [ ] UserService - 註冊功能
-  - [ ] UserService - 登入功能
-  - [ ] UserService - 館員驗證功能
-  - [ ] 密碼加密處理
+- [x] **使用者管理服務**
+  - [x] UserService - 註冊功能
+  - [x] UserService - 登入功能
+  - [x] UserService - 館員驗證功能
+  - [x] 密碼加密處理
 
-- [ ] **書籍管理服務**
-  - [ ] BookService - 新增書籍
-  - [ ] BookService - 搜尋書籍
-  - [ ] BookService - 更新書籍
-  - [ ] BookService - 刪除書籍
+- [x] **書籍管理服務**
+  - [x] BookService - 新增書籍
+  - [x] BookService - 搜尋書籍
+  - [x] BookService - 更新書籍
+  - [x] BookService - 刪除書籍
 
-- [ ] **借閱管理服務**
-  - [ ] BorrowService - 借書功能
-  - [ ] BorrowService - 還書功能
-  - [ ] BorrowService - 借閱限制檢查
-  - [ ] BorrowService - 逾期檢查
+- [x] **借閱管理服務**
+  - [x] BorrowService - 借書功能
+  - [x] BorrowService - 還書功能
+  - [x] BorrowService - 借閱限制檢查
+  - [x] BorrowService - 逾期檢查
+
+- [x] **圖書館管理服務**
+  - [x] LibraryService - 圖書館管理
+  - [x] NotificationService - 通知管理
 
 **目的**: 實現核心業務邏輯，處理複雜的業務規則
 
@@ -271,7 +275,7 @@
 - [x] Docker配置 (4/4)
 - [ ] 文件與部署 (0/5)
 
-**總進度**: 33/75 項目完成
+**總進度**: 41/75 項目完成
 
 ---
 
