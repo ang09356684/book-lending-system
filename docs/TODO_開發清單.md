@@ -74,18 +74,22 @@
 **目的**: 建立資料庫表結構的Java物件對應
 
 #### **階段4: Repository層** ⏱️ 1小時
-- [ ] **建立Repository介面**
-  - [ ] UserRepository
-  - [ ] BookRepository
-  - [ ] BookCopyRepository
-  - [ ] BorrowRecordRepository
-  - [ ] LibraryRepository
+- [x] **建立Repository介面**
+  - [x] UserRepository
+  - [x] BookRepository
+  - [x] BookCopyRepository
+  - [x] BorrowRecordRepository
+  - [x] LibraryRepository
+  - [x] RoleRepository
+  - [x] NotificationRepository
 
-- [ ] **自定義查詢方法**
-  - [ ] 根據書名搜尋書籍
-  - [ ] 根據作者搜尋書籍
-  - [ ] 查詢可用副本
-  - [ ] 查詢使用者借閱記錄
+- [x] **自定義查詢方法**
+  - [x] 根據書名搜尋書籍
+  - [x] 根據作者搜尋書籍
+  - [x] 查詢可用副本
+  - [x] 查詢使用者借閱記錄
+  - [x] 逾期查詢功能
+  - [x] 分頁查詢功能
 
 **目的**: 建立資料存取層，提供資料庫操作方法
 
@@ -267,7 +271,7 @@
 - [x] Docker配置 (4/4)
 - [ ] 文件與部署 (0/5)
 
-**總進度**: 25/75 項目完成
+**總進度**: 33/75 項目完成
 
 ---
 
