@@ -3,10 +3,17 @@ package com.library.controller;
 import com.library.dto.ApiResponse;
 import com.library.dto.request.LibrarianRegisterRequest;
 import com.library.dto.request.RegisterRequest;
+import com.library.dto.request.LoginRequest;
+import com.library.dto.response.LoginResponse;
 import com.library.entity.User;
+import com.library.security.JwtTokenProvider;
 import com.library.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,9 +31,13 @@ import jakarta.validation.Valid;
 public class AuthController {
     
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
     
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, AuthenticationManager authenticationManager, JwtTokenProvider tokenProvider) {
         this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
     }
     
     /**
@@ -90,5 +101,26 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
         boolean exists = userService.existsByEmail(email);
         return ResponseEntity.ok(ApiResponse.success(exists));
+    }
+    
+    /**
+     * User login with JWT token generation
+     * 
+     * @param request Login request
+     * @return JWT token and user information
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+        );
+        
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = tokenProvider.generateToken(authentication);
+        
+        User user = userService.findByUsername(request.getUsername());
+        LoginResponse loginResponse = new LoginResponse(jwt, user);
+        
+        return ResponseEntity.ok(ApiResponse.success(loginResponse, "Login successful"));
     }
 }

@@ -4,6 +4,7 @@ import com.library.entity.Role;
 import com.library.entity.User;
 import com.library.repository.RoleRepository;
 import com.library.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,11 +24,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ExternalApiService externalApiService;
+    private final PasswordEncoder passwordEncoder;
     
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, ExternalApiService externalApiService) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, ExternalApiService externalApiService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.externalApiService = externalApiService;
+        this.passwordEncoder = passwordEncoder;
     }
     
     /**
@@ -60,8 +63,11 @@ public class UserService {
         Role userRole = roleRepository.findByName("USER")
             .orElseThrow(() -> new RuntimeException("Default role not found"));
         
+        // Encrypt password
+        String encodedPassword = passwordEncoder.encode(password);
+        
         // Create user
-        User user = new User(username, password, email, fullName, userRole);
+        User user = new User(username, encodedPassword, email, fullName, userRole);
         return userRepository.save(user);
     }
     
@@ -105,8 +111,11 @@ public class UserService {
         Role librarianRole = roleRepository.findByName("LIBRARIAN")
             .orElseThrow(() -> new RuntimeException("Librarian role not found"));
         
+        // Encrypt password
+        String encodedPassword = passwordEncoder.encode(password);
+        
         // Create librarian user
-        User librarian = new User(username, password, email, fullName, librarianRole);
+        User librarian = new User(username, encodedPassword, email, fullName, librarianRole);
         return userRepository.save(librarian);
     }
     
