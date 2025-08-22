@@ -7,7 +7,7 @@
 
 -- Roles table (Librarian / Member)
 CREATE TABLE IF NOT EXISTS roles (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(50) UNIQUE NOT NULL,  -- 'LIBRARIAN', 'MEMBER'
     description TEXT
 );
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,        -- Password (needs encryption)
     email VARCHAR(100) UNIQUE NOT NULL,
     full_name VARCHAR(100) NOT NULL,
-    role_id INT NOT NULL,
+    role_id BIGINT NOT NULL,
     librarian_id VARCHAR(50),              -- Librarian ID (librarians only)
     is_verified BOOLEAN DEFAULT FALSE,     -- Librarian accounts need external verification
     created_at TIMESTAMP DEFAULT NOW(),
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS librarian_verifications (
 
 -- Libraries (Main branch / Branch libraries)
 CREATE TABLE IF NOT EXISTS libraries (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) UNIQUE NOT NULL,
     address TEXT NOT NULL,
     phone VARCHAR(20),
@@ -77,7 +77,7 @@ CREATE INDEX IF NOT EXISTS idx_books_search ON books(title, author, published_ye
 CREATE TABLE IF NOT EXISTS book_copies (
     id BIGSERIAL PRIMARY KEY,
     book_id BIGINT NOT NULL,
-    library_id INT NOT NULL,
+    library_id BIGINT NOT NULL,
     copy_number INT NOT NULL,  -- Copy number (cannot duplicate in same library)
     status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE'
         CHECK (status IN ('AVAILABLE','BORROWED','LOST','DAMAGED')),

@@ -38,8 +38,8 @@ cd library-system
 docker-compose -f docker-compose.dev.yml up --build
 
 # 3. 訪問服務
-# 應用程式: http://localhost:8080
-# API文件: http://localhost:8080/swagger-ui.html
+# 應用程式: http://localhost:8080/api
+# API文件: http://localhost:8080/api/swagger-ui/index.html
 # 資料庫管理: http://localhost:5050
 ```
 
@@ -108,6 +108,20 @@ docker-compose -f docker-compose.dev.yml up --build
 - ✅ API文件自動生成
 - ✅ 完整測試覆蓋
 - ✅ 跨平台開發支援
+
+### 🌐 **API 文件**
+
+- **Swagger UI**: http://localhost:8080/api/swagger-ui/index.html
+- **API 文件 JSON**: http://localhost:8080/api/v3/api-docs
+- **健康檢查**: http://localhost:8080/api/actuator/health
+
+### 📋 **主要 API 端點**
+
+- **認證**: `/api/auth/*` - 註冊、登入、登出
+- **書籍管理**: `/api/books/*` - 書籍 CRUD 操作
+- **借閱管理**: `/api/borrowings/*` - 借書、還書、查詢
+- **用戶管理**: `/api/users/*` - 用戶資訊管理
+- **圖書館管理**: `/api/libraries/*` - 圖書館資訊管理
 
 ---
 
