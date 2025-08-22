@@ -8,6 +8,13 @@ import com.library.dto.response.LoginResponse;
 import com.library.entity.User;
 import com.library.security.JwtTokenProvider;
 import com.library.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +35,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 @Validated
+@Tag(name = "Authentication", description = "User authentication and registration endpoints")
 public class AuthController {
     
     private final UserService userService;
@@ -47,7 +55,55 @@ public class AuthController {
      * @return Registered user information
      */
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(@RequestBody @Valid RegisterRequest request) {
+    @Operation(
+        summary = "Register new user",
+        description = "Register a new user account with basic information"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "User registered successfully",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = com.library.dto.ApiResponse.class),
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "message": "User registered successfully",
+                        "data": {
+                            "id": 1,
+                            "username": "john_doe",
+                            "email": "john@example.com",
+                            "fullName": "John Doe",
+                            "role": "USER"
+                        }
+                    }
+                    """
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": false,
+                        "message": "Validation failed",
+                        "errors": ["Username is required", "Email format is invalid"]
+                    }
+                    """
+                )
+            )
+        )
+    })
+    public ResponseEntity<ApiResponse<User>> register(
+        @Parameter(description = "User registration information", required = true)
+        @RequestBody @Valid RegisterRequest request
+    ) {
         User user = userService.registerUser(
             request.getUsername(),
             request.getEmail(),
@@ -66,7 +122,24 @@ public class AuthController {
      * @return Registered librarian information
      */
     @PostMapping("/register/librarian")
-    public ResponseEntity<ApiResponse<User>> registerLibrarian(@RequestBody @Valid LibrarianRegisterRequest request) {
+    @Operation(
+        summary = "Register new librarian",
+        description = "Register a new librarian account with external verification"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "Librarian registered successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data or external verification failed"
+        )
+    })
+    public ResponseEntity<ApiResponse<User>> registerLibrarian(
+        @Parameter(description = "Librarian registration information", required = true)
+        @RequestBody @Valid LibrarianRegisterRequest request
+    ) {
         User librarian = userService.registerLibrarian(
             request.getUsername(),
             request.getEmail(),
@@ -86,7 +159,32 @@ public class AuthController {
      * @return Boolean indicating if username exists
      */
     @GetMapping("/check-username")
-    public ResponseEntity<ApiResponse<Boolean>> checkUsername(@RequestParam String username) {
+    @Operation(
+        summary = "Check username availability",
+        description = "Check if a username is already taken"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Username availability checked",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "data": false,
+                        "message": "Username is available"
+                    }
+                    """
+                )
+            )
+        )
+    })
+    public ResponseEntity<ApiResponse<Boolean>> checkUsername(
+        @Parameter(description = "Username to check", required = true, example = "john_doe")
+        @RequestParam String username
+    ) {
         boolean exists = userService.existsByUsername(username);
         return ResponseEntity.ok(ApiResponse.success(exists));
     }
@@ -98,7 +196,20 @@ public class AuthController {
      * @return Boolean indicating if email exists
      */
     @GetMapping("/check-email")
-    public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
+    @Operation(
+        summary = "Check email availability",
+        description = "Check if an email is already registered"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Email availability checked"
+        )
+    })
+    public ResponseEntity<ApiResponse<Boolean>> checkEmail(
+        @Parameter(description = "Email to check", required = true, example = "john@example.com")
+        @RequestParam String email
+    ) {
         boolean exists = userService.existsByEmail(email);
         return ResponseEntity.ok(ApiResponse.success(exists));
     }
@@ -110,7 +221,57 @@ public class AuthController {
      * @return JWT token and user information
      */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
+    @Operation(
+        summary = "User login",
+        description = "Authenticate user and return JWT token"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Login successful",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = com.library.dto.ApiResponse.class),
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "message": "Login successful",
+                        "data": {
+                            "token": "eyJhbGciOiJIUzUxMiJ9...",
+                            "tokenType": "Bearer",
+                            "user": {
+                                "id": 1,
+                                "username": "john_doe",
+                                "email": "john@example.com",
+                                "fullName": "John Doe"
+                            }
+                        }
+                    }
+                    """
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "Invalid credentials",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": false,
+                        "message": "Invalid username or password"
+                    }
+                    """
+                )
+            )
+        )
+    })
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+        @Parameter(description = "Login credentials", required = true)
+        @RequestBody @Valid LoginRequest request
+    ) {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );

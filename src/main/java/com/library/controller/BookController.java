@@ -4,6 +4,13 @@ import com.library.dto.ApiResponse;
 import com.library.dto.request.CreateBookRequest;
 import com.library.entity.Book;
 import com.library.service.BookService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 @Validated
+@Tag(name = "Books", description = "Book management endpoints")
 public class BookController {
     
     private final BookService bookService;
@@ -37,8 +45,20 @@ public class BookController {
      * @return List of books
      */
     @GetMapping
+    @Operation(
+        summary = "Get all books",
+        description = "Retrieve all books with optional pagination"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Books retrieved successfully"
+        )
+    })
     public ResponseEntity<ApiResponse<List<Book>>> getAllBooks(
+        @Parameter(description = "Page number (0-based)", example = "0")
         @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size", example = "10")
         @RequestParam(defaultValue = "10") int size
     ) {
         List<Book> books = bookService.searchBooks(null, null, null);
@@ -52,7 +72,24 @@ public class BookController {
      * @return Book information
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Book>> getBook(@PathVariable Long id) {
+    @Operation(
+        summary = "Get book by ID",
+        description = "Retrieve a specific book by its ID"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Book found successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Book not found"
+        )
+    })
+    public ResponseEntity<ApiResponse<Book>> getBook(
+        @Parameter(description = "Book ID", required = true, example = "1")
+        @PathVariable Long id
+    ) {
         Book book = bookService.findById(id);
         return ResponseEntity.ok(ApiResponse.success(book));
     }
@@ -64,7 +101,42 @@ public class BookController {
      * @return Created book information
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<Book>> createBook(@RequestBody @Valid CreateBookRequest request) {
+    @Operation(
+        summary = "Create new book",
+        description = "Create a new book with the provided information"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "Book created successfully",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "message": "Book created successfully",
+                        "data": {
+                            "id": 1,
+                            "title": "The Great Gatsby",
+                            "author": "F. Scott Fitzgerald",
+                            "publishedYear": 1925,
+                            "category": "Fiction"
+                        }
+                    }
+                    """
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data"
+        )
+    })
+    public ResponseEntity<ApiResponse<Book>> createBook(
+        @Parameter(description = "Book creation information", required = true)
+        @RequestBody @Valid CreateBookRequest request
+    ) {
         Book book = bookService.createBook(
             request.getTitle(),
             request.getAuthor(),
@@ -85,9 +157,22 @@ public class BookController {
      * @return List of matching books
      */
     @GetMapping("/search")
+    @Operation(
+        summary = "Search books",
+        description = "Search books by title, author, or category"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Search completed successfully"
+        )
+    })
     public ResponseEntity<ApiResponse<List<Book>>> searchBooks(
+        @Parameter(description = "Book title to search for", example = "Gatsby")
         @RequestParam(required = false) String title,
+        @Parameter(description = "Book author to search for", example = "Fitzgerald")
         @RequestParam(required = false) String author,
+        @Parameter(description = "Book category to search for", example = "Fiction")
         @RequestParam(required = false) String category
     ) {
         List<Book> books = bookService.searchBooks(title, author, category);
@@ -101,7 +186,20 @@ public class BookController {
      * @return List of books in the category
      */
     @GetMapping("/category/{category}")
-    public ResponseEntity<ApiResponse<List<Book>>> getBooksByCategory(@PathVariable String category) {
+    @Operation(
+        summary = "Get books by category",
+        description = "Retrieve all books in a specific category"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Books retrieved successfully"
+        )
+    })
+    public ResponseEntity<ApiResponse<List<Book>>> getBooksByCategory(
+        @Parameter(description = "Book category", required = true, example = "Fiction")
+        @PathVariable String category
+    ) {
         List<Book> books = bookService.findByCategory(category);
         return ResponseEntity.ok(ApiResponse.success(books));
     }
@@ -113,7 +211,20 @@ public class BookController {
      * @return List of books by the author
      */
     @GetMapping("/author/{author}")
-    public ResponseEntity<ApiResponse<List<Book>>> getBooksByAuthor(@PathVariable String author) {
+    @Operation(
+        summary = "Get books by author",
+        description = "Retrieve all books by a specific author"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Books retrieved successfully"
+        )
+    })
+    public ResponseEntity<ApiResponse<List<Book>>> getBooksByAuthor(
+        @Parameter(description = "Book author", required = true, example = "F. Scott Fitzgerald")
+        @PathVariable String author
+    ) {
         List<Book> books = bookService.findByAuthor(author);
         return ResponseEntity.ok(ApiResponse.success(books));
     }
@@ -125,7 +236,20 @@ public class BookController {
      * @return List of books published in the year
      */
     @GetMapping("/year/{year}")
-    public ResponseEntity<ApiResponse<List<Book>>> getBooksByYear(@PathVariable Integer year) {
+    @Operation(
+        summary = "Get books by published year",
+        description = "Retrieve all books published in a specific year"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Books retrieved successfully"
+        )
+    })
+    public ResponseEntity<ApiResponse<List<Book>>> getBooksByYear(
+        @Parameter(description = "Published year", required = true, example = "1925")
+        @PathVariable Integer year
+    ) {
         List<Book> books = bookService.findByPublishedYear(year);
         return ResponseEntity.ok(ApiResponse.success(books));
     }
@@ -138,8 +262,20 @@ public class BookController {
      * @return Boolean indicating if book is available
      */
     @GetMapping("/{id}/available")
+    @Operation(
+        summary = "Check book availability",
+        description = "Check if a book is available for borrowing at a specific library"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Availability checked successfully"
+        )
+    })
     public ResponseEntity<ApiResponse<Boolean>> isBookAvailable(
+        @Parameter(description = "Book ID", required = true, example = "1")
         @PathVariable Long id,
+        @Parameter(description = "Library ID", required = true, example = "1")
         @RequestParam Long libraryId
     ) {
         boolean available = bookService.isBookAvailable(id, libraryId);
@@ -154,8 +290,20 @@ public class BookController {
      * @return Number of available copies
      */
     @GetMapping("/{id}/available-count")
+    @Operation(
+        summary = "Get available copy count",
+        description = "Get the number of available copies of a book at a specific library"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Count retrieved successfully"
+        )
+    })
     public ResponseEntity<ApiResponse<Long>> getAvailableCopyCount(
+        @Parameter(description = "Book ID", required = true, example = "1")
         @PathVariable Long id,
+        @Parameter(description = "Library ID", required = true, example = "1")
         @RequestParam Long libraryId
     ) {
         long count = bookService.getAvailableCopyCount(id, libraryId);

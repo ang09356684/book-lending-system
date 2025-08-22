@@ -179,11 +179,11 @@
 ### 📝 **API文件**
 
 #### **階段9: Springdoc OpenAPI** ⏱️ 30分鐘
-- [ ] **API文件配置**
-  - [ ] 加入Springdoc OpenAPI依賴
-  - [ ] 配置OpenAPI設定
-  - [ ] 為Controller加入API註解
-  - [ ] 測試API文件頁面
+- [x] **API文件配置**
+  - [x] 加入Springdoc OpenAPI依賴
+  - [x] 配置OpenAPI設定
+  - [x] 為Controller加入API註解
+  - [x] 測試API文件頁面
 
 **目的**: 產生互動式API文件，方便測試和文件化
 
@@ -288,7 +288,7 @@
 - [x] Docker配置 (4/4)
 - [ ] 文件與部署 (0/5)
 
-**總進度**: 56/75 項目完成
+**總進度**: 60/75 項目完成
 
 ---
 

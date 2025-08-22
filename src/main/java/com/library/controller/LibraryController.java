@@ -3,6 +3,13 @@ package com.library.controller;
 import com.library.dto.ApiResponse;
 import com.library.entity.Library;
 import com.library.service.LibraryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/libraries")
 @Validated
+@Tag(name = "Libraries", description = "Library management endpoints")
 public class LibraryController {
     
     private final LibraryService libraryService;
@@ -33,6 +41,16 @@ public class LibraryController {
      * @return List of all libraries
      */
     @GetMapping
+    @Operation(
+        summary = "Get all libraries",
+        description = "Retrieve all libraries in the system"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Libraries retrieved successfully"
+        )
+    })
     public ResponseEntity<ApiResponse<List<Library>>> getAllLibraries() {
         List<Library> libraries = libraryService.findAll();
         return ResponseEntity.ok(ApiResponse.success(libraries));
@@ -45,7 +63,24 @@ public class LibraryController {
      * @return Library information
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Library>> getLibrary(@PathVariable Long id) {
+    @Operation(
+        summary = "Get library by ID",
+        description = "Retrieve a specific library by its ID"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Library found successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Library not found"
+        )
+    })
+    public ResponseEntity<ApiResponse<Library>> getLibrary(
+        @Parameter(description = "Library ID", required = true, example = "1")
+        @PathVariable Long id
+    ) {
         Library library = libraryService.findById(id);
         return ResponseEntity.ok(ApiResponse.success(library));
     }
@@ -57,7 +92,24 @@ public class LibraryController {
      * @return Library information
      */
     @GetMapping("/name/{name}")
-    public ResponseEntity<ApiResponse<Library>> getLibraryByName(@PathVariable String name) {
+    @Operation(
+        summary = "Get library by name",
+        description = "Retrieve a library by its name"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Library found successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Library not found"
+        )
+    })
+    public ResponseEntity<ApiResponse<Library>> getLibraryByName(
+        @Parameter(description = "Library name", required = true, example = "Central Library")
+        @PathVariable String name
+    ) {
         Library library = libraryService.findByName(name)
             .orElseThrow(() -> new RuntimeException("Library not found"));
         return ResponseEntity.ok(ApiResponse.success(library));
@@ -70,7 +122,41 @@ public class LibraryController {
      * @return Created library information
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<Library>> createLibrary(@RequestBody Library library) {
+    @Operation(
+        summary = "Create new library",
+        description = "Create a new library with the provided information"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "Library created successfully",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "message": "Library created successfully",
+                        "data": {
+                            "id": 1,
+                            "name": "Central Library",
+                            "address": "123 Main St, City",
+                            "phone": "+1-555-0123"
+                        }
+                    }
+                    """
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data"
+        )
+    })
+    public ResponseEntity<ApiResponse<Library>> createLibrary(
+        @Parameter(description = "Library information", required = true)
+        @RequestBody Library library
+    ) {
         Library createdLibrary = libraryService.createLibrary(
             library.getName(),
             library.getAddress(),
@@ -89,8 +175,24 @@ public class LibraryController {
      * @return Updated library information
      */
     @PutMapping("/{id}")
+    @Operation(
+        summary = "Update library",
+        description = "Update an existing library's information"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Library updated successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Library not found"
+        )
+    })
     public ResponseEntity<ApiResponse<Library>> updateLibrary(
+        @Parameter(description = "Library ID", required = true, example = "1")
         @PathVariable Long id,
+        @Parameter(description = "Updated library information", required = true)
         @RequestBody Library library
     ) {
         Library updatedLibrary = libraryService.updateLibrary(
@@ -110,7 +212,24 @@ public class LibraryController {
      * @return Success message
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> deleteLibrary(@PathVariable Long id) {
+    @Operation(
+        summary = "Delete library",
+        description = "Delete a library from the system"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Library deleted successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Library not found"
+        )
+    })
+    public ResponseEntity<ApiResponse<String>> deleteLibrary(
+        @Parameter(description = "Library ID", required = true, example = "1")
+        @PathVariable Long id
+    ) {
         libraryService.deleteLibrary(id);
         return ResponseEntity.ok(ApiResponse.success("Library deleted successfully"));
     }
@@ -122,7 +241,32 @@ public class LibraryController {
      * @return Boolean indicating if library exists
      */
     @GetMapping("/exists/{name}")
-    public ResponseEntity<ApiResponse<Boolean>> libraryExists(@PathVariable String name) {
+    @Operation(
+        summary = "Check library existence",
+        description = "Check if a library exists by name"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Existence checked successfully",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "data": true,
+                        "message": "Library exists"
+                    }
+                    """
+                )
+            )
+        )
+    })
+    public ResponseEntity<ApiResponse<Boolean>> libraryExists(
+        @Parameter(description = "Library name", required = true, example = "Central Library")
+        @PathVariable String name
+    ) {
         boolean exists = libraryService.existsByName(name);
         return ResponseEntity.ok(ApiResponse.success(exists));
     }
