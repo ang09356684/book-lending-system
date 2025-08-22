@@ -22,10 +22,12 @@ public class UserService {
     
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final ExternalApiService externalApiService;
     
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, ExternalApiService externalApiService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.externalApiService = externalApiService;
     }
     
     /**
@@ -61,6 +63,51 @@ public class UserService {
         // Create user
         User user = new User(username, password, email, fullName, userRole);
         return userRepository.save(user);
+    }
+    
+    /**
+     * Register a new librarian with external verification
+     */
+    public User registerLibrarian(String username, String email, String password, String fullName, String librarianId) {
+        // Validate input
+        if (username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("Username is required");
+        }
+        
+        if (email == null || email.trim().isEmpty()) {
+            throw new RuntimeException("Email is required");
+        }
+        
+        if (password == null || password.length() < 6) {
+            throw new RuntimeException("Password must be at least 6 characters");
+        }
+        
+        if (librarianId == null || librarianId.trim().isEmpty()) {
+            throw new RuntimeException("Librarian ID is required");
+        }
+        
+        // Check if user already exists
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username already exists");
+        }
+        
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email already exists");
+        }
+        
+        // Verify librarian with external system
+        boolean isVerified = externalApiService.verifyLibrarian(librarianId);
+        if (!isVerified) {
+            throw new RuntimeException("Librarian verification failed. Please check your librarian ID.");
+        }
+        
+        // Get librarian role
+        Role librarianRole = roleRepository.findByName("LIBRARIAN")
+            .orElseThrow(() -> new RuntimeException("Librarian role not found"));
+        
+        // Create librarian user
+        User librarian = new User(username, password, email, fullName, librarianRole);
+        return userRepository.save(librarian);
     }
     
     /**
