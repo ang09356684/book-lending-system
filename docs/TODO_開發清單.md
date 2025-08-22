@@ -57,19 +57,19 @@
 ### 📊 **資料庫層開發**
 
 #### **階段3: 實體類別建立** ⏱️ 2小時
-- [ ] **建立Entity類別**
-  - [ ] 建立User實體
-  - [ ] 建立Role實體
-  - [ ] 建立Book實體
-  - [ ] 建立BookCopy實體
-  - [ ] 建立Library實體
-  - [ ] 建立BorrowRecord實體
-  - [ ] 建立Notification實體
+- [x] **建立Entity類別**
+  - [x] 建立User實體
+  - [x] 建立Role實體
+  - [x] 建立Book實體
+  - [x] 建立BookCopy實體
+  - [x] 建立Library實體
+  - [x] 建立BorrowRecord實體
+  - [x] 建立Notification實體
 
-- [ ] **設定關聯關係**
-  - [ ] 設定OneToMany/ManyToOne關係
-  - [ ] 設定外鍵約束
-  - [ ] 設定級聯操作
+- [x] **設定關聯關係**
+  - [x] 設定OneToMany/ManyToOne關係
+  - [x] 設定外鍵約束
+  - [x] 設定級聯操作
 
 **目的**: 建立資料庫表結構的Java物件對應
 
@@ -267,7 +267,7 @@
 - [x] Docker配置 (4/4)
 - [ ] 文件與部署 (0/5)
 
-**總進度**: 17/75 項目完成
+**總進度**: 25/75 項目完成
 
 ---
 
