@@ -61,7 +61,8 @@ CREATE TABLE IF NOT EXISTS books (
     title VARCHAR(200) NOT NULL,
     author VARCHAR(200) NOT NULL,
     published_year INT CHECK (published_year > 0),
-    category VARCHAR(50) NOT NULL CHECK (category IN ('圖書', '書籍')),
+    category VARCHAR(50) NOT NULL,
+    book_type VARCHAR(20) NOT NULL DEFAULT '圖書' CHECK (book_type IN ('圖書', '書籍')),
     created_at TIMESTAMP DEFAULT NOW()
 );
 

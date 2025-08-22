@@ -27,4 +27,8 @@ public class CreateBookRequest {
     @NotBlank(message = "Book category is required")
     @Size(max = 50, message = "Category must not exceed 50 characters")
     private String category;
+    
+    @NotBlank(message = "Book type is required")
+    @Size(max = 20, message = "Book type must not exceed 20 characters")
+    private String bookType = "圖書"; // Default to "圖書"
 }

@@ -51,11 +51,9 @@ public class BorrowService {
             throw new RuntimeException("Book is not available");
         }
         
-        // Check user borrowing limit (max 5 books)
-        long activeBorrows = borrowRecordRepository.countByUserAndStatus(user, "BORROWED");
-        if (activeBorrows >= 5) {
-            throw new RuntimeException("Borrow limit exceeded. Maximum 5 books allowed.");
-        }
+        // Get book type and check borrowing limits
+        String bookType = bookCopy.getBook().getBookType();
+        checkBorrowingLimits(user, bookType);
         
         // Check for overdue books
         List<BorrowRecord> overdueRecords = borrowRecordRepository.findOverdueRecords(
@@ -65,7 +63,7 @@ public class BorrowService {
             throw new RuntimeException("User has overdue books. Please return them first.");
         }
         
-        // Create borrow record
+        // Create borrow record with 30 days loan period
         BorrowRecord borrowRecord = new BorrowRecord(user, bookCopy, LocalDateTime.now().plusDays(30));
         
         // Update book copy status
@@ -74,6 +72,35 @@ public class BorrowService {
         
         // Save borrow record
         return borrowRecordRepository.save(borrowRecord);
+    }
+    
+    /**
+     * Check borrowing limits based on book type
+     * 圖書: maximum 5 books
+     * 書籍: maximum 10 books
+     */
+    private void checkBorrowingLimits(User user, String bookType) {
+        List<BorrowRecord> activeBorrows = borrowRecordRepository.findByUserAndStatus(user, "BORROWED");
+        
+        if ("圖書".equals(bookType)) {
+            // Check if user already has 5 圖書
+            long bookCount = activeBorrows.stream()
+                .filter(record -> "圖書".equals(record.getBookCopy().getBook().getBookType()))
+                .count();
+            
+            if (bookCount >= 5) {
+                throw new RuntimeException("圖書借閱限制已達上限 (最多5本)");
+            }
+        } else if ("書籍".equals(bookType)) {
+            // Check if user already has 10 書籍
+            long bookCount = activeBorrows.stream()
+                .filter(record -> "書籍".equals(record.getBookCopy().getBook().getBookType()))
+                .count();
+            
+            if (bookCount >= 10) {
+                throw new RuntimeException("書籍借閱限制已達上限 (最多10本)");
+            }
+        }
     }
     
     /**
@@ -100,6 +127,30 @@ public class BorrowService {
         
         // Save borrow record
         return borrowRecordRepository.save(borrowRecord);
+    }
+    
+    /**
+     * Send notifications for books due in 5 days
+     * This method should be called by a scheduled task
+     */
+    public void sendDueDateNotifications() {
+        LocalDateTime fiveDaysFromNow = LocalDateTime.now().plusDays(5);
+        LocalDateTime sixDaysFromNow = LocalDateTime.now().plusDays(6);
+        
+        // Find all borrow records due in 5 days
+        List<BorrowRecord> dueRecords = borrowRecordRepository.findByStatusAndDueAtBetween(
+            "BORROWED", fiveDaysFromNow, sixDaysFromNow
+        );
+        
+        for (BorrowRecord record : dueRecords) {
+            // Simulate sending notification using System.out.println
+            System.out.println("=== 借閱到期通知 ===");
+            System.out.println("用戶: " + record.getUser().getFullName() + " (" + record.getUser().getEmail() + ")");
+            System.out.println("書籍: " + record.getBookCopy().getBook().getTitle());
+            System.out.println("到期日期: " + record.getDueAt());
+            System.out.println("請在到期日前歸還書籍，避免逾期罰款。");
+            System.out.println("==================");
+        }
     }
     
     /**
@@ -152,5 +203,42 @@ public class BorrowService {
             userId, "BORROWED", LocalDateTime.now()
         );
         return !overdueRecords.isEmpty();
+    }
+    
+    /**
+     * Get borrowing statistics for a user
+     */
+    public BorrowingStats getBorrowingStats(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        List<BorrowRecord> activeBorrows = borrowRecordRepository.findByUserAndStatus(user, "BORROWED");
+        
+        long bookCount = activeBorrows.stream()
+            .filter(record -> "圖書".equals(record.getBookCopy().getBook().getBookType()))
+            .count();
+            
+        long bookCount2 = activeBorrows.stream()
+            .filter(record -> "書籍".equals(record.getBookCopy().getBook().getBookType()))
+            .count();
+        
+        return new BorrowingStats(bookCount, bookCount2);
+    }
+    
+    /**
+     * Borrowing statistics for a user
+     */
+    public static class BorrowingStats {
+        private final long bookCount; // 圖書 count
+        private final long bookCount2; // 書籍 count
+        
+        public BorrowingStats(long bookCount, long bookCount2) {
+            this.bookCount = bookCount;
+            this.bookCount2 = bookCount2;
+        }
+        
+        public long getBookCount() { return bookCount; }
+        public long getBookCount2() { return bookCount2; }
+        public long getTotalCount() { return bookCount + bookCount2; }
     }
 }

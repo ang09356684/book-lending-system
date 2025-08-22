@@ -4,6 +4,7 @@ import com.library.entity.BorrowRecord;
 import com.library.entity.Notification;
 import com.library.entity.User;
 import com.library.repository.NotificationRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,8 +12,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Notification Service - Business logic for notification management
- * 
+ * Notification Service - Handles scheduled notifications
+ *
  * @author Library System
  * @version 1.0.0
  */
@@ -21,9 +22,11 @@ import java.util.List;
 public class NotificationService {
     
     private final NotificationRepository notificationRepository;
+    private final BorrowService borrowService;
     
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository, BorrowService borrowService) {
         this.notificationRepository = notificationRepository;
+        this.borrowService = borrowService;
     }
     
     /**
@@ -94,5 +97,25 @@ public class NotificationService {
     public Notification findById(Long id) {
         return notificationRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Notification not found"));
+    }
+    
+    /**
+     * Send due date notifications every day at 9:00 AM
+     * This scheduled task checks for books due in 5 days and sends notifications
+     */
+    @Scheduled(cron = "0 0 9 * * ?") // Every day at 9:00 AM
+    public void sendDailyDueDateNotifications() {
+        System.out.println("=== 開始執行每日到期通知檢查 ===");
+        borrowService.sendDueDateNotifications();
+        System.out.println("=== 每日到期通知檢查完成 ===");
+    }
+    
+    /**
+     * Manual method to trigger notifications (for testing purposes)
+     */
+    public void sendNotificationsNow() {
+        System.out.println("=== 手動觸發到期通知檢查 ===");
+        borrowService.sendDueDateNotifications();
+        System.out.println("=== 手動觸發到期通知檢查完成 ===");
     }
 }

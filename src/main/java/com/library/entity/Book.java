@@ -40,6 +40,9 @@ public class Book {
     @Column(name = "category", nullable = false, length = 50)
     private String category;
     
+    @Column(name = "book_type", nullable = false, length = 20)
+    private String bookType; // "圖書" or "書籍"
+    
     @CreatedDate
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -49,10 +52,20 @@ public class Book {
     private List<BookCopy> bookCopies;
     
     // Constructor for basic book creation
+    public Book(String title, String author, Integer publishedYear, String category, String bookType) {
+        this.title = title;
+        this.author = author;
+        this.publishedYear = publishedYear;
+        this.category = category;
+        this.bookType = bookType;
+    }
+    
+    // Constructor for backward compatibility
     public Book(String title, String author, Integer publishedYear, String category) {
         this.title = title;
         this.author = author;
         this.publishedYear = publishedYear;
         this.category = category;
+        this.bookType = "圖書"; // Default to "圖書"
     }
 }

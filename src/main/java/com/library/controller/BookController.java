@@ -121,7 +121,8 @@ public class BookController {
                             "title": "The Great Gatsby",
                             "author": "F. Scott Fitzgerald",
                             "publishedYear": 1925,
-                            "category": "Fiction"
+                            "category": "Fiction",
+                            "bookType": "圖書"
                         }
                     }
                     """
@@ -141,7 +142,8 @@ public class BookController {
             request.getTitle(),
             request.getAuthor(),
             request.getPublishedYear(),
-            request.getCategory()
+            request.getCategory(),
+            request.getBookType()
         );
         
         return ResponseEntity.status(HttpStatus.CREATED)

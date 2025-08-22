@@ -50,8 +50,39 @@ public class BookService {
             throw new RuntimeException("Book category is required");
         }
         
-        // Create book
+        // Create book with default type "圖書"
         Book book = new Book(title, author, publishedYear, category);
+        return bookRepository.save(book);
+    }
+    
+    /**
+     * Create a new book with specific type
+     */
+    public Book createBook(String title, String author, Integer publishedYear, String category, String bookType) {
+        // Validate input
+        if (title == null || title.trim().isEmpty()) {
+            throw new RuntimeException("Book title is required");
+        }
+        
+        if (author == null || author.trim().isEmpty()) {
+            throw new RuntimeException("Book author is required");
+        }
+        
+        if (category == null || category.trim().isEmpty()) {
+            throw new RuntimeException("Book category is required");
+        }
+        
+        if (bookType == null || bookType.trim().isEmpty()) {
+            throw new RuntimeException("Book type is required");
+        }
+        
+        // Validate book type
+        if (!"圖書".equals(bookType) && !"書籍".equals(bookType)) {
+            throw new RuntimeException("Book type must be either '圖書' or '書籍'");
+        }
+        
+        // Create book with specified type
+        Book book = new Book(title, author, publishedYear, category, bookType);
         return bookRepository.save(book);
     }
     

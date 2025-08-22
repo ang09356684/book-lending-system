@@ -39,6 +39,15 @@ public interface BorrowRecordRepository extends JpaRepository<BorrowRecord, Long
                                           @Param("status") String status, 
                                           @Param("currentDate") LocalDateTime currentDate);
     
+    // Notification queries - find records due in specific date range
+    @Query("SELECT br FROM BorrowRecord br WHERE " +
+           "br.status = :status AND " +
+           "br.dueAt >= :startDate AND " +
+           "br.dueAt < :endDate")
+    List<BorrowRecord> findByStatusAndDueAtBetween(@Param("status") String status,
+                                                   @Param("startDate") LocalDateTime startDate,
+                                                   @Param("endDate") LocalDateTime endDate);
+    
     // Pagination queries
     Page<BorrowRecord> findByUser(User user, Pageable pageable);
     Page<BorrowRecord> findByUserAndStatus(User user, String status, Pageable pageable);
