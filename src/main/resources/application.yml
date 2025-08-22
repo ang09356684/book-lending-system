@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: library-management-system
+  
+  # Database configuration
+  datasource:
+    url: jdbc:postgresql://postgres:5432/library
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    defer-datasource-initialization: true
+  
+  # Database initialization
+  sql:
+    init:
+      mode: never
+      # schema-locations: classpath:database_schema.sql
+      # data-locations: classpath:data.sql
+
+# Server configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# JWT configuration
+jwt:
+  secret: library-management-system-secret-key-2024-very-long-and-secure
+  expiration: 86400000 # 24 hours (milliseconds)
+
+# External API configuration
+external:
+  librarian:
+    verification-url: https://todo.com.tw
+    authorization-header: todo
+
+# Springdoc OpenAPI configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  info:
+    title: Online Library Management System API
+    description: RESTful API for book borrowing, returning, and management
+    version: 1.0.0
+    contact:
+      name: Library System Team
+      email: support@library.com
+
+# Logging configuration
+logging:
+  level:
+    com.library: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

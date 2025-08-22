@@ -1,0 +1,20 @@
+# 開發環境 Dockerfile
+FROM maven:3.9.6-eclipse-temurin-17
+
+# 設定工作目錄
+WORKDIR /app
+
+# 複製 pom.xml
+COPY pom.xml .
+
+# 下載依賴
+RUN mvn dependency:go-offline
+
+# 複製原始碼
+COPY src ./src
+
+# 暴露端口
+EXPOSE 8080 5005
+
+# 開發模式命令
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'"]
