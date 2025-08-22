@@ -118,7 +118,8 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
         
-        User user = userService.findByUsername(request.getUsername());
+        User user = userService.findByUsername(request.getUsername())
+            .orElseThrow(() -> new RuntimeException("User not found"));
         LoginResponse loginResponse = new LoginResponse(jwt, user);
         
         return ResponseEntity.ok(ApiResponse.success(loginResponse, "Login successful"));

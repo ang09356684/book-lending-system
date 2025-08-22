@@ -8,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 /**
@@ -37,16 +39,16 @@ public class JwtTokenProvider {
      * Generate JWT token from username
      */
     public String generateTokenFromUsername(String username) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        Instant now = Instant.now();
+        Instant expiryDate = now.plus(jwtExpirationMs, ChronoUnit.MILLIS);
 
         SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS512)
+                .subject(username)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiryDate))
+                .signWith(key)
                 .compact();
     }
 
@@ -96,7 +98,7 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            return claims.getExpiration().before(new Date());
+            return claims.getExpiration().before(Date.from(Instant.now()));
         } catch (JwtException | IllegalArgumentException e) {
             return true;
         }
