@@ -136,19 +136,32 @@
 ### 🌐 **API層開發**
 
 #### **階段7: Controller層** ⏱️ 2小時
-- [ ] **認證Controller**
-  - [ ] AuthController - 註冊API
-  - [ ] AuthController - 登入API
-  - [ ] AuthController - 登出API
+- [x] **認證Controller**
+  - [x] AuthController - 註冊API
+  - [x] AuthController - 館員註冊API
+  - [x] AuthController - 使用者檢查API
 
-- [ ] **書籍管理Controller**
-  - [ ] BookController - 書籍CRUD API
-  - [ ] BookController - 書籍搜尋API
+- [x] **書籍管理Controller**
+  - [x] BookController - 書籍CRUD API
+  - [x] BookController - 書籍搜尋API
+  - [x] BookController - 書籍可用性檢查API
 
-- [ ] **借閱管理Controller**
-  - [ ] BorrowController - 借書API
-  - [ ] BorrowController - 還書API
-  - [ ] BorrowController - 查詢借閱記錄API
+- [x] **借閱管理Controller**
+  - [x] BorrowController - 借書API
+  - [x] BorrowController - 還書API
+  - [x] BorrowController - 查詢借閱記錄API
+
+- [x] **使用者管理Controller**
+  - [x] UserController - 使用者查詢API
+  - [x] UserController - 使用者狀態更新API
+
+- [x] **圖書館管理Controller**
+  - [x] LibraryController - 圖書館CRUD API
+
+- [x] **統一API回應格式**
+  - [x] ApiResponse DTO類別
+  - [x] 全域異常處理器
+  - [x] 請求驗證DTO類別
 
 **目的**: 建立RESTful API端點，提供HTTP介面
 
@@ -275,7 +288,7 @@
 - [x] Docker配置 (4/4)
 - [ ] 文件與部署 (0/5)
 
-**總進度**: 41/75 項目完成
+**總進度**: 52/75 項目完成
 
 ---
 

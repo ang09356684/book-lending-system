@@ -202,12 +202,54 @@ public class User {
 ### **@EqualsAndHashCode**
 生成 equals() 和 hashCode() 方法
 
+#### **基本用法：**
 ```java
 @EqualsAndHashCode
 public class User {
     private String name;
     private String email;
 }
+```
+
+#### **繼承關係中的使用：**
+```java
+// 父類別
+@Data
+public class RegisterRequest {
+    private String username;
+    private String email;
+    private String password;
+    private String fullName;
+}
+
+// 子類別 - 使用 callSuper = true
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class LibrarianRegisterRequest extends RegisterRequest {
+    private String librarianId;
+}
+```
+
+#### **callSuper 參數說明：**
+- **callSuper = true**: 在生成 equals() 和 hashCode() 時，會包含父類別的欄位
+- **callSuper = false** (預設): 只考慮當前類別的欄位，忽略父類別
+
+#### **為什麼需要 callSuper = true？**
+```java
+// 沒有 callSuper = true 的情況
+LibrarianRegisterRequest req1 = new LibrarianRegisterRequest();
+req1.setUsername("john");
+req1.setLibrarianId("LIB001");
+
+LibrarianRegisterRequest req2 = new LibrarianRegisterRequest();
+req2.setUsername("john");
+req2.setLibrarianId("LIB002");
+
+// 這兩個物件會被認為相等，因為只比較了 librarianId
+// 但實際上它們是不同的館員！
+
+// 有 callSuper = true 的情況
+// equals() 會比較所有欄位，包括父類別的 username, email 等
 ```
 
 ### **@Builder**
@@ -297,6 +339,73 @@ public class User {
 
 2. **不適合使用 Lombok 的情況：**
    - 需要自定義邏輯的 getter/setter
+
+### **在我們的專案中的完整範例：**
+
+#### **1. Entity 類別 (User.java)**
+```java
+@Entity
+@Table(name = "users")
+@Data                    // 自動生成 getter/setter/toString/equals/hashCode
+@NoArgsConstructor       // 自動生成預設建構函式
+@AllArgsConstructor      // 自動生成全參數建構函式
+@EntityListeners(AuditingEntityListener.class)
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "username", unique = true, nullable = false)
+    private String username;
+    
+    @Column(name = "password", nullable = false)
+    private String password;
+    
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
+    
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+    
+    // 不需要手寫任何 getter/setter！
+}
+```
+
+#### **2. DTO 類別 (LibrarianRegisterRequest.java)**
+```java
+@Data                    // 自動生成 getter/setter/toString/equals/hashCode
+@EqualsAndHashCode(callSuper = true)  // 繼承時包含父類別欄位
+public class LibrarianRegisterRequest extends RegisterRequest {
+    @NotBlank(message = "Librarian ID is required")
+    private String librarianId;
+}
+```
+
+#### **3. 回應物件 (ApiResponse.java)**
+```java
+@Data                    // 自動生成 getter/setter
+@NoArgsConstructor       // 自動生成預設建構函式
+@AllArgsConstructor      // 自動生成全參數建構函式
+public class ApiResponse<T> {
+    private boolean success;
+    private T data;
+    private String message;
+    private String error;
+    
+    // 靜態方法需要手寫，因為 Lombok 不會生成靜態方法
+    public static <T> ApiResponse<T> success(T data) {
+        return success(data, null);
+    }
+    
+    public static <T> ApiResponse<T> success(T data, String message) {
+        ApiResponse<T> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setData(data);
+        response.setMessage(message);
+        return response;
+    }
+}
+```
    - 複雜的業務邏輯類別
    - 需要特殊處理的建構函式
 
