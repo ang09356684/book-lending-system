@@ -263,7 +263,7 @@ public boolean validateUserRegistration(String username, String email) {
 ```java
 public String getDisplayName(User user) {
     return Optional.ofNullable(user)
-        .map(User::getFullName)
+        .map(User::getName)
         .filter(name -> !name.trim().isEmpty())
         .orElseGet(() -> user.getUsername())
         .orElse("Anonymous");
@@ -471,7 +471,7 @@ String result = name
 // 模擬使用者查詢
 public String getUserDisplayName(String username) {
     return userService.findByUsername(username)
-        .map(User::getFullName)
+        .map(User::getName)
         .filter(name -> !name.trim().isEmpty())
         .orElseGet(() -> userService.findByUsername(username)
             .map(User::getUsername)

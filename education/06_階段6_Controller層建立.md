@@ -253,10 +253,9 @@ public class AuthController {
     public ResponseEntity<ApiResponse<User>> register(@RequestBody @Valid RegisterRequest request) {
         try {
             User user = userService.registerUser(
-                request.getUsername(),
+                request.getName(),
                 request.getEmail(),
-                request.getPassword(),
-                request.getFullName()
+                request.getPassword()
             );
             
             return ResponseEntity.ok(ApiResponse.success(user, "User registered successfully"));
@@ -274,10 +273,9 @@ public class AuthController {
     public ResponseEntity<ApiResponse<User>> registerLibrarian(@RequestBody @Valid LibrarianRegisterRequest request) {
         try {
             User librarian = userService.registerLibrarian(
-                request.getUsername(),
+                request.getName(),
                 request.getEmail(),
                 request.getPassword(),
-                request.getFullName(),
                 request.getLibrarianId()
             );
             

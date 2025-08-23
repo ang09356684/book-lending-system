@@ -54,21 +54,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
 #### **基本查詢**
 ```java
 // 根據欄位名稱查詢
-User findByUsername(String username);
 User findByEmail(String email);
 List<User> findByRole(Role role);
 
 // 多條件查詢
-User findByUsernameAndEmail(String username, String email);
 List<User> findByRoleOrIsVerified(Role role, Boolean isVerified);
 ```
 
 #### **查詢關鍵字**
 | 關鍵字 | 說明 | 範例 |
 |--------|------|------|
-| `findBy` | 查詢 | `findByUsername` |
+| `findBy` | 查詢 | `findByEmail` |
 | `countBy` | 計算 | `countByRole` |
-| `deleteBy` | 刪除 | `deleteByUsername` |
+| `deleteBy` | 刪除 | `deleteByEmail` |
 | `existsBy` | 存在檢查 | `existsByEmail` |
 
 #### **條件關鍵字**
@@ -76,8 +74,8 @@ List<User> findByRoleOrIsVerified(Role role, Boolean isVerified);
 |--------|------|------|
 | `And` | 且 | `findByUsernameAndEmail` |
 | `Or` | 或 | `findByRoleOrIsVerified` |
-| `Not` | 非 | `findByUsernameNot` |
-| `Like` | 模糊查詢 | `findByUsernameLike` |
+| `Not` | 非 | `findByEmailNot` |
+| `Like` | 模糊查詢 | `findByEmailLike` |
 | `In` | 包含 | `findByRoleIn` |
 | `Between` | 範圍 | `findByCreatedAtBetween` |
 
@@ -89,7 +87,7 @@ List<User> findByRoleOrIsVerified(Role role, Boolean isVerified);
 List<User> findByRoleOrderByCreatedAtDesc(Role role);
 
 // 多欄位排序
-List<User> findByRoleOrderByCreatedAtDescUsernameAsc(Role role);
+List<User> findByRoleOrderByCreatedAtDescNameAsc(Role role);
 ```
 
 #### **分頁**
@@ -112,12 +110,11 @@ Page<User> users = userRepository.findByRole(role, pageable);
 ```java
 // 1. 根據單一欄位查詢
 Optional<Role> findByName(String name);
-Optional<User> findByUsername(String username);
 Optional<User> findByEmail(String email);
+List<User> findByRole(Role role);
 
 // 2. 存在性檢查
 boolean existsByName(String name);
-boolean existsByUsername(String username);
 boolean existsByEmail(String email);
 
 // 3. 計數查詢
@@ -125,11 +122,9 @@ long countByRole(Role role);
 long countByCategory(String category);
 
 // 4. 刪除操作
-void deleteByUsername(String username);
 void deleteByEmail(String email);
 
 // 5. 簡單的多條件查詢
-User findByUsernameAndEmail(String username, String email);
 List<User> findByRoleAndIsVerified(Role role, Boolean isVerified);
 ```
 
@@ -157,12 +152,12 @@ boolean existsByName(String name);       // 檢查名稱是否存在
 // List<User> findByRoleAndIsVerifiedAndCreatedAtBetweenAndUsernameLike(Role role, Boolean verified, LocalDateTime start, LocalDateTime end, String username);
 
 // ✅ 使用@Query更清楚：
-@Query("SELECT u FROM User u WHERE u.role = :role AND u.isVerified = :verified AND u.createdAt BETWEEN :startDate AND :endDate AND u.username LIKE %:username%")
+@Query("SELECT u FROM User u WHERE u.role = :role AND u.isVerified = :verified AND u.createdAt BETWEEN :startDate AND :endDate AND u.name LIKE %:name%")
 List<User> findUsersByComplexCriteria(@Param("role") Role role, 
                                      @Param("verified") Boolean verified,
                                      @Param("startDate") LocalDateTime startDate,
                                      @Param("endDate") LocalDateTime endDate,
-                                     @Param("username") String username);
+                                     @Param("name") String name);
 
 // 2. 需要JOIN查詢
 // ❌ 方法名稱無法表達JOIN：

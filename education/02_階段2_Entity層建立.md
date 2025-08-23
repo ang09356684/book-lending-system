@@ -249,17 +249,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "username", unique = true, nullable = false, length = 50)
-    private String username;
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
     
     @Column(name = "password", nullable = false)
     private String password;
     
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
-    
-    @Column(name = "full_name", nullable = false, length = 100)
-    private String fullName;
     
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)

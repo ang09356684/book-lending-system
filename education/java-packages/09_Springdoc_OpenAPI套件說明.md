@@ -237,9 +237,9 @@ public ResponseEntity<ApiResponse<Book>> getBook(
 @Schema(description = "User registration request")
 public class RegisterRequest {
     
-    @Schema(description = "Username for login", example = "john_doe", minLength = 3)
-    @NotBlank(message = "Username is required")
-    private String username;
+    @Schema(description = "User name", example = "John Doe", minLength = 2)
+    @NotBlank(message = "Name is required")
+    private String name;
     
     @Schema(description = "User email address", example = "john@example.com")
     @Email(message = "Email format is invalid")
@@ -337,14 +337,14 @@ public class BookController {
 public class RegisterRequest {
     
     @Schema(
-        description = "Username for login",
-        example = "john_doe",
-        minLength = 3,
-        maxLength = 50
+        description = "User name",
+        example = "John Doe",
+        minLength = 2,
+        maxLength = 100
     )
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
-    private String username;
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
+    private String name;
     
     @Schema(
         description = "User email address",
@@ -363,13 +363,6 @@ public class RegisterRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
-    
-    @Schema(
-        description = "User full name",
-        example = "John Doe"
-    )
-    @NotBlank(message = "Full name is required")
-    private String fullName;
 }
 ```
 

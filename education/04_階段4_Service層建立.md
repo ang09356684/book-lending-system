@@ -270,10 +270,9 @@ public class UserService {
         
         // 4. 建立使用者
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFullName(request.getFullName());
         user.setRole(defaultRole);
         user.setIsVerified(false);
         
@@ -281,9 +280,9 @@ public class UserService {
         return userRepository.save(user);
     }
     
-    public User authenticateUser(String username, String password) {
+    public User authenticateUser(String email, String password) {
         // 1. 查找使用者
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new UserNotFoundException("User not found"));
         
         // 2. 驗證密碼
@@ -300,8 +299,8 @@ public class UserService {
     }
     
     private void validateRegistrationRequest(UserRegistrationRequest request) {
-        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
-            throw new ValidationException("Username is required");
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
+            throw new ValidationException("Name is required");
         }
         
         if (request.getEmail() == null || !isValidEmail(request.getEmail())) {

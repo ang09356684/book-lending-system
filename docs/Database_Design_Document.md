@@ -52,10 +52,9 @@ CREATE TABLE roles (
 ```sql
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,        -- 密碼 (需加密)
     email VARCHAR(100) UNIQUE NOT NULL,
-    full_name VARCHAR(100) NOT NULL,
     role_id INT NOT NULL REFERENCES roles(id),
     librarian_id VARCHAR(50),              -- 館員識別碼（僅館員需要）
     is_verified BOOLEAN DEFAULT FALSE,     -- 館員帳號需外部驗證
@@ -66,10 +65,9 @@ CREATE TABLE users (
 
 **欄位說明**:
 - `id`: 使用者唯一識別碼
-- `username`: 使用者名稱（唯一）
+- `name`: 使用者姓名
 - `password`: 加密密碼
 - `email`: 電子郵件（唯一）
-- `full_name`: 完整姓名
 - `role_id`: 角色外鍵
 - `librarian_id`: 館員識別碼（館員專用）
 - `is_verified`: 驗證狀態（館員專用）

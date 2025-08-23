@@ -131,26 +131,13 @@ public class BorrowService {
     
     /**
      * Send notifications for books due in 5 days
-     * This method should be called by a scheduled task
+     * This method is now handled by ScheduledNotificationService
+     * @deprecated Use ScheduledNotificationService.checkOverdueNotifications() instead
      */
+    @Deprecated
     public void sendDueDateNotifications() {
-        LocalDateTime fiveDaysFromNow = LocalDateTime.now().plusDays(5);
-        LocalDateTime sixDaysFromNow = LocalDateTime.now().plusDays(6);
-        
-        // Find all borrow records due in 5 days
-        List<BorrowRecord> dueRecords = borrowRecordRepository.findByStatusAndDueAtBetween(
-            "BORROWED", fiveDaysFromNow, sixDaysFromNow
-        );
-        
-        for (BorrowRecord record : dueRecords) {
-            // Simulate sending notification using System.out.println
-            System.out.println("=== 借閱到期通知 ===");
-            System.out.println("用戶: " + record.getUser().getName() + " (" + record.getUser().getEmail() + ")");
-            System.out.println("書籍: " + record.getBookCopy().getBook().getTitle());
-            System.out.println("到期日期: " + record.getDueAt());
-            System.out.println("請在到期日前歸還書籍，避免逾期罰款。");
-            System.out.println("==================");
-        }
+        // This method is deprecated and moved to ScheduledNotificationService
+        // The scheduled task now runs automatically every minute
     }
     
     /**
