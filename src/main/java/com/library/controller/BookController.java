@@ -5,8 +5,12 @@ import com.library.dto.request.AddBookCopiesRequest;
 import com.library.dto.request.CreateBookRequest;
 import com.library.dto.request.CreateBookWithCopiesRequest;
 import com.library.dto.response.BookResponse;
+import com.library.dto.response.SimpleBookResponse;
 import com.library.dto.response.BookWithCopiesResponse;
+import com.library.dto.response.BookCopyResponse;
+import com.library.dto.response.BookWithCopySummaryResponse;
 import com.library.entity.Book;
+import com.library.entity.BookCopy;
 import com.library.entity.User;
 import com.library.service.BookService;
 import com.library.service.UserService;
@@ -92,7 +96,7 @@ public class BookController {
         @Parameter(description = "Page size", example = "10")
         @RequestParam(defaultValue = "10") int size
     ) {
-        List<Book> books = bookService.searchBooks(null, null, null);
+        List<Book> books = bookService.getAllBooks(page, size);
         List<BookResponse> bookResponses = books.stream()
             .map(book -> new BookResponse(
                 book.getId(),
@@ -104,6 +108,48 @@ public class BookController {
             ))
             .toList();
         return ResponseEntity.ok(ApiResponse.success(bookResponses));
+    }
+    
+    /**
+     * Search books with copy summary
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
+     * 
+     * @param title Book title (optional)
+     * @param author Book author (optional)
+     * @param category Book category (optional)
+     * @param libraryId Library ID to filter copies (optional)
+     * @param page Page number (default: 0)
+     * @param size Page size (default: 10)
+     * @return List of books with copy summary
+     */
+    @GetMapping("/search")
+    @Operation(
+        summary = "Search books with copy summary",
+        description = "Search books with copy availability information. Can filter by library. Accessible by all authenticated users."
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Books with copy summary retrieved successfully"
+        )
+    })
+    public ResponseEntity<ApiResponse<List<BookWithCopySummaryResponse>>> searchBooksWithCopySummary(
+        @Parameter(description = "Book title", example = "Java")
+        @RequestParam(required = false) String title,
+        @Parameter(description = "Book author", example = "John Smith")
+        @RequestParam(required = false) String author,
+        @Parameter(description = "Book category", example = "Programming")
+        @RequestParam(required = false) String category,
+        @Parameter(description = "Library ID to filter copies", example = "1")
+        @RequestParam(required = false) Long libraryId,
+        @Parameter(description = "Page number (0-based)", example = "0")
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size", example = "10")
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<BookWithCopySummaryResponse> books = bookService.searchBooksWithCopySummary(
+            title, author, category, libraryId, page, size);
+        return ResponseEntity.ok(ApiResponse.success(books));
     }
     
     /**
@@ -345,37 +391,39 @@ public class BookController {
             .body(ApiResponse.success(response, "Book copies added successfully"));
     }
     
+
+    
     /**
-     * Search books by criteria
+     * Get books by category with pagination
      * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
-     * @param title Book title (optional)
-     * @param author Book author (optional)
-     * @param category Book category (optional)
-     * @return List of matching books
+     * @param category Book category
+     * @param page Page number (default: 0)
+     * @param size Page size (default: 10)
+     * @return List of books in the category
      */
-    @GetMapping("/search")
+    @GetMapping("/category/{category}")
     @Operation(
-        summary = "Search books",
-        description = "Search books by title, author, or category. Accessible by all authenticated users."
+        summary = "Get books by category",
+        description = "Retrieve all books in a specific category with pagination. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
-            description = "Search completed successfully"
+            description = "Books retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<BookResponse>>> searchBooks(
-        @Parameter(description = "Book title to search for", example = "Gatsby")
-        @RequestParam(required = false) String title,
-        @Parameter(description = "Book author to search for", example = "Fitzgerald")
-        @RequestParam(required = false) String author,
-        @Parameter(description = "Book category to search for", example = "Fiction")
-        @RequestParam(required = false) String category
+    public ResponseEntity<ApiResponse<List<SimpleBookResponse>>> getBooksByCategory(
+        @Parameter(description = "Book category", required = true, example = "Fiction")
+        @PathVariable String category,
+        @Parameter(description = "Page number (0-based)", example = "0")
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size", example = "10")
+        @RequestParam(defaultValue = "10") int size
     ) {
-        List<Book> books = bookService.searchBooks(title, author, category);
-        List<BookResponse> bookResponses = books.stream()
-            .map(book -> new BookResponse(
+        List<Book> books = bookService.getBooksByCategory(category, page, size);
+        List<SimpleBookResponse> bookResponses = books.stream()
+            .map(book -> new SimpleBookResponse(
                 book.getId(),
                 book.getTitle(),
                 book.getAuthor(),
@@ -388,42 +436,18 @@ public class BookController {
     }
     
     /**
-     * Get books by category
-     * Access: All authenticated users (MEMBER, LIBRARIAN)
-     * 
-     * @param category Book category
-     * @return List of books in the category
-     */
-    @GetMapping("/category/{category}")
-    @Operation(
-        summary = "Get books by category",
-        description = "Retrieve all books in a specific category. Accessible by all authenticated users."
-    )
-    @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Books retrieved successfully"
-        )
-    })
-    public ResponseEntity<ApiResponse<List<Book>>> getBooksByCategory(
-        @Parameter(description = "Book category", required = true, example = "Fiction")
-        @PathVariable String category
-    ) {
-        List<Book> books = bookService.findByCategory(category);
-        return ResponseEntity.ok(ApiResponse.success(books));
-    }
-    
-    /**
-     * Get books by author
+     * Get books by author with pagination
      * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param author Book author
+     * @param page Page number (default: 0)
+     * @param size Page size (default: 10)
      * @return List of books by the author
      */
     @GetMapping("/author/{author}")
     @Operation(
         summary = "Get books by author",
-        description = "Retrieve all books by a specific author. Accessible by all authenticated users."
+        description = "Retrieve all books by a specific author with pagination. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -431,25 +455,41 @@ public class BookController {
             description = "Books retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<Book>>> getBooksByAuthor(
+    public ResponseEntity<ApiResponse<List<SimpleBookResponse>>> getBooksByAuthor(
         @Parameter(description = "Book author", required = true, example = "F. Scott Fitzgerald")
-        @PathVariable String author
+        @PathVariable String author,
+        @Parameter(description = "Page number (0-based)", example = "0")
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size", example = "10")
+        @RequestParam(defaultValue = "10") int size
     ) {
-        List<Book> books = bookService.findByAuthor(author);
-        return ResponseEntity.ok(ApiResponse.success(books));
+        List<Book> books = bookService.getBooksByAuthor(author, page, size);
+        List<SimpleBookResponse> bookResponses = books.stream()
+            .map(book -> new SimpleBookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublishedYear(),
+                book.getCategory(),
+                book.getBookType()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(bookResponses));
     }
     
     /**
-     * Get books by published year
+     * Get books by published year with pagination
      * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param year Published year
+     * @param page Page number (default: 0)
+     * @param size Page size (default: 10)
      * @return List of books published in the year
      */
     @GetMapping("/year/{year}")
     @Operation(
         summary = "Get books by published year",
-        description = "Retrieve all books published in a specific year. Accessible by all authenticated users."
+        description = "Retrieve all books published in a specific year with pagination. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -457,12 +497,26 @@ public class BookController {
             description = "Books retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<Book>>> getBooksByYear(
+    public ResponseEntity<ApiResponse<List<SimpleBookResponse>>> getBooksByYear(
         @Parameter(description = "Published year", required = true, example = "1925")
-        @PathVariable Integer year
+        @PathVariable Integer year,
+        @Parameter(description = "Page number (0-based)", example = "0")
+        @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size", example = "10")
+        @RequestParam(defaultValue = "10") int size
     ) {
-        List<Book> books = bookService.findByPublishedYear(year);
-        return ResponseEntity.ok(ApiResponse.success(books));
+        List<Book> books = bookService.getBooksByPublishedYear(year, page, size);
+        List<SimpleBookResponse> bookResponses = books.stream()
+            .map(book -> new SimpleBookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublishedYear(),
+                book.getCategory(),
+                book.getBookType()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(bookResponses));
     }
     
     /**
@@ -521,5 +575,81 @@ public class BookController {
     ) {
         long count = bookService.getAvailableCopyCount(id, libraryId);
         return ResponseEntity.ok(ApiResponse.success(count));
+    }
+    
+    /**
+     * Get book copies for borrowing
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
+     * 
+     * @param id Book ID
+     * @return List of book copies with copy IDs for borrowing
+     */
+    @GetMapping("/{id}/copies")
+    @Operation(
+        summary = "Get book copies",
+        description = "Get all copies of a book across all libraries. Shows copy IDs needed for borrowing. Accessible by all authenticated users."
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Book copies retrieved successfully"
+        )
+    })
+    public ResponseEntity<ApiResponse<List<BookCopyResponse>>> getBookCopies(
+        @Parameter(description = "Book ID", required = true, example = "1")
+        @PathVariable Long id
+    ) {
+        List<BookCopy> bookCopies = bookService.getBookCopies(id);
+        List<BookCopyResponse> copyResponses = bookCopies.stream()
+            .map(copy -> new BookCopyResponse(
+                copy.getId(),
+                copy.getBook().getId(),
+                copy.getBook().getTitle(),
+                copy.getBook().getAuthor(),
+                copy.getLibrary().getId(),
+                copy.getLibrary().getName(),
+                copy.getCopyNumber(),
+                copy.getStatus()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(copyResponses));
+    }
+    
+    /**
+     * Get available book copies for borrowing
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
+     * 
+     * @param id Book ID
+     * @return List of available book copies with copy IDs for borrowing
+     */
+    @GetMapping("/{id}/copies/available")
+    @Operation(
+        summary = "Get available book copies",
+        description = "Get only available copies of a book across all libraries. Shows copy IDs needed for borrowing. Accessible by all authenticated users."
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Available book copies retrieved successfully"
+        )
+    })
+    public ResponseEntity<ApiResponse<List<BookCopyResponse>>> getAvailableBookCopies(
+        @Parameter(description = "Book ID", required = true, example = "1")
+        @PathVariable Long id
+    ) {
+        List<BookCopy> bookCopies = bookService.getAvailableBookCopies(id);
+        List<BookCopyResponse> copyResponses = bookCopies.stream()
+            .map(copy -> new BookCopyResponse(
+                copy.getId(),
+                copy.getBook().getId(),
+                copy.getBook().getTitle(),
+                copy.getBook().getAuthor(),
+                copy.getLibrary().getId(),
+                copy.getLibrary().getName(),
+                copy.getCopyNumber(),
+                copy.getStatus()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(copyResponses));
     }
 }

@@ -15,6 +15,6 @@ public class BorrowRequest {
     @NotNull(message = "User ID is required")
     private Long userId;
     
-    @NotNull(message = "Library ID is required")
-    private Long libraryId;
+    // Note: libraryId is not needed because bookCopyId already contains library information
+    // Each BookCopy is associated with a specific library
 }

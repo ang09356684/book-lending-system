@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -43,6 +44,7 @@ public class Library {
     
     // Association with BookCopy entity
     @OneToMany(mappedBy = "library", fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<BookCopy> bookCopies;
     
     // Constructor for basic library creation

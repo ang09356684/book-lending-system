@@ -3,6 +3,7 @@ package com.library.service;
 import com.library.dto.request.AddBookCopiesRequest;
 import com.library.dto.request.CreateBookWithCopiesRequest;
 import com.library.dto.response.BookWithCopiesResponse;
+import com.library.dto.response.BookWithCopySummaryResponse;
 import com.library.entity.Book;
 import com.library.entity.BookCopy;
 import com.library.entity.Library;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Book Service - Business logic for book management
@@ -98,10 +101,66 @@ public class BookService {
     }
     
     /**
+     * Get all books with pagination
+     */
+    public List<Book> getAllBooks(int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 10;
+        }
+        
+        // Calculate offset
+        int offset = page * size;
+        
+        // Get all books first (since we don't have a paginated search method)
+        List<Book> allBooks = bookRepository.searchBooks(null, null, null);
+        
+        // Apply pagination manually
+        int startIndex = offset;
+        int endIndex = Math.min(startIndex + size, allBooks.size());
+        
+        if (startIndex >= allBooks.size()) {
+            return new ArrayList<>();
+        }
+        
+        return allBooks.subList(startIndex, endIndex);
+    }
+    
+    /**
      * Find books by category
      */
     public List<Book> findByCategory(String category) {
         return bookRepository.findByCategory(category);
+    }
+    
+    /**
+     * Get books by category with pagination
+     */
+    public List<Book> getBooksByCategory(String category, int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 10;
+        }
+        
+        // Calculate offset
+        int offset = page * size;
+        
+        // Get all books in category first
+        List<Book> allBooks = bookRepository.findByCategory(category);
+        
+        // Apply pagination manually
+        int startIndex = offset;
+        int endIndex = Math.min(startIndex + size, allBooks.size());
+        
+        if (startIndex >= allBooks.size()) {
+            return new ArrayList<>();
+        }
+        
+        return allBooks.subList(startIndex, endIndex);
     }
     
     /**
@@ -112,10 +171,66 @@ public class BookService {
     }
     
     /**
+     * Get books by author with pagination
+     */
+    public List<Book> getBooksByAuthor(String author, int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 10;
+        }
+        
+        // Calculate offset
+        int offset = page * size;
+        
+        // Get all books by author first
+        List<Book> allBooks = bookRepository.findByAuthor(author);
+        
+        // Apply pagination manually
+        int startIndex = offset;
+        int endIndex = Math.min(startIndex + size, allBooks.size());
+        
+        if (startIndex >= allBooks.size()) {
+            return new ArrayList<>();
+        }
+        
+        return allBooks.subList(startIndex, endIndex);
+    }
+    
+    /**
      * Find books by published year
      */
     public List<Book> findByPublishedYear(Integer publishedYear) {
         return bookRepository.findByPublishedYear(publishedYear);
+    }
+    
+    /**
+     * Get books by published year with pagination
+     */
+    public List<Book> getBooksByPublishedYear(Integer publishedYear, int page, int size) {
+        if (page < 0) {
+            page = 0;
+        }
+        if (size <= 0) {
+            size = 10;
+        }
+        
+        // Calculate offset
+        int offset = page * size;
+        
+        // Get all books by published year first
+        List<Book> allBooks = bookRepository.findByPublishedYear(publishedYear);
+        
+        // Apply pagination manually
+        int startIndex = offset;
+        int endIndex = Math.min(startIndex + size, allBooks.size());
+        
+        if (startIndex >= allBooks.size()) {
+            return new ArrayList<>();
+        }
+        
+        return allBooks.subList(startIndex, endIndex);
     }
     
     /**
@@ -177,6 +292,101 @@ public class BookService {
      */
     public long getTotalCopyCount(Long bookId) {
         return bookCopyRepository.countByBook(findById(bookId));
+    }
+    
+    /**
+     * Get book copies for a specific book
+     */
+    public List<BookCopy> getBookCopies(Long bookId) {
+        Book book = findById(bookId);
+        return bookCopyRepository.findByBook(book);
+    }
+    
+    /**
+     * Get available book copies across all libraries
+     */
+    public List<BookCopy> getAvailableBookCopies(Long bookId) {
+        Book book = findById(bookId);
+        return bookCopyRepository.findByBookAndStatus(book, "AVAILABLE");
+    }
+    
+    /**
+     * Search books with copy summary
+     */
+    public List<BookWithCopySummaryResponse> searchBooksWithCopySummary(
+            String title, String author, String category, Long libraryId, int page, int size) {
+        
+        // Get books based on search criteria
+        List<Book> books = bookRepository.searchBooks(title, author, category);
+        
+        // Apply pagination
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        int offset = page * size;
+        int startIndex = offset;
+        int endIndex = Math.min(startIndex + size, books.size());
+        
+        if (startIndex >= books.size()) {
+            return new ArrayList<>();
+        }
+        
+        List<Book> paginatedBooks = books.subList(startIndex, endIndex);
+        
+        // Convert to response with copy summary
+        return paginatedBooks.stream()
+            .map(book -> createBookWithCopySummary(book, libraryId))
+            .toList();
+    }
+    
+    /**
+     * Create book with copy summary response
+     */
+    private BookWithCopySummaryResponse createBookWithCopySummary(Book book, Long libraryId) {
+        List<BookCopy> allCopies = bookCopyRepository.findByBook(book);
+        
+        // Filter by library if specified
+        List<BookCopy> relevantCopies = libraryId != null 
+            ? allCopies.stream()
+                .filter(copy -> copy.getLibrary().getId().equals(libraryId))
+                .toList()
+            : allCopies;
+        
+        // Calculate statistics
+        int totalCopies = relevantCopies.size();
+        int availableCopies = (int) relevantCopies.stream()
+            .filter(copy -> "AVAILABLE".equals(copy.getStatus()))
+            .count();
+        
+        // Group by library
+        Map<Long, List<BookCopy>> copiesByLibrary = relevantCopies.stream()
+            .collect(Collectors.groupingBy(copy -> copy.getLibrary().getId()));
+        
+        List<BookWithCopySummaryResponse.LibraryCopySummary> librarySummaries = copiesByLibrary.entrySet().stream()
+            .map(entry -> {
+                Long libId = entry.getKey();
+                List<BookCopy> libCopies = entry.getValue();
+                String libName = libCopies.get(0).getLibrary().getName();
+                int libTotal = libCopies.size();
+                int libAvailable = (int) libCopies.stream()
+                    .filter(copy -> "AVAILABLE".equals(copy.getStatus()))
+                    .count();
+                
+                return new BookWithCopySummaryResponse.LibraryCopySummary(libId, libName, libTotal, libAvailable);
+            })
+            .toList();
+        
+        BookWithCopySummaryResponse.CopySummary copySummary = new BookWithCopySummaryResponse.CopySummary(
+            totalCopies, availableCopies, librarySummaries);
+        
+        return new BookWithCopySummaryResponse(
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getPublishedYear(),
+            book.getCategory(),
+            book.getBookType(),
+            copySummary
+        );
     }
     
     /**
