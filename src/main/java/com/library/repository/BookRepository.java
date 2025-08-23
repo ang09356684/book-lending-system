@@ -25,10 +25,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByPublishedYear(Integer publishedYear);
     
     // Search functionality
-    @Query("SELECT b FROM Book b WHERE " +
-           "(:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%'))) AND " +
-           "(:author IS NULL OR LOWER(b.author) LIKE LOWER(CONCAT('%', :author, '%'))) AND " +
-           "(:category IS NULL OR b.category = :category)")
+    @Query(value = "SELECT * FROM books WHERE " +
+           "(:title IS NULL OR title ILIKE '%' || :title || '%') AND " +
+           "(:author IS NULL OR author ILIKE '%' || :author || '%') AND " +
+           "(:category IS NULL OR category = :category)", 
+           nativeQuery = true)
     List<Book> searchBooks(@Param("title") String title, 
                            @Param("author") String author, 
                            @Param("category") String category);

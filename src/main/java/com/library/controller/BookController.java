@@ -7,7 +7,9 @@ import com.library.dto.request.CreateBookWithCopiesRequest;
 import com.library.dto.response.BookResponse;
 import com.library.dto.response.BookWithCopiesResponse;
 import com.library.entity.Book;
+import com.library.entity.User;
 import com.library.service.BookService;
+import com.library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +19,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,13 +40,36 @@ import java.util.List;
 public class BookController {
     
     private final BookService bookService;
+    private final UserService userService;
     
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, UserService userService) {
         this.bookService = bookService;
+        this.userService = userService;
+    }
+    
+    /**
+     * Check if current user is a librarian
+     */
+    private boolean isLibrarian() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User currentUser = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Current user not found"));
+        return "LIBRARIAN".equals(currentUser.getRole().getName());
+    }
+    
+    /**
+     * Check librarian permissions and throw exception if not authorized
+     */
+    private void checkLibrarianPermission() {
+        if (!isLibrarian()) {
+            throw new RuntimeException("Access denied. Only librarians can perform this operation.");
+        }
     }
     
     /**
      * Get all books with pagination
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param page Page number (default: 0)
      * @param size Page size (default: 10)
@@ -51,7 +78,7 @@ public class BookController {
     @GetMapping
     @Operation(
         summary = "Get all books",
-        description = "Retrieve all books with optional pagination"
+        description = "Retrieve all books with optional pagination. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -81,6 +108,7 @@ public class BookController {
     
     /**
      * Get book by ID
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param id Book ID
      * @return Book information
@@ -88,7 +116,7 @@ public class BookController {
     @GetMapping("/{id}")
     @Operation(
         summary = "Get book by ID",
-        description = "Retrieve a specific book by its ID"
+        description = "Retrieve a specific book by its ID. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -118,6 +146,7 @@ public class BookController {
     
     /**
      * Create a new book (basic version - only creates book without copies)
+     * Access: LIBRARIAN only
      * 
      * @param request Book creation request
      * @return Created book information
@@ -125,7 +154,7 @@ public class BookController {
     @PostMapping
     @Operation(
         summary = "Create new book (basic)",
-        description = "Create a new book with the provided information (without copies)"
+        description = "Create a new book with the provided information (without copies). LIBRARIAN access only."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -160,6 +189,8 @@ public class BookController {
         @Parameter(description = "Book creation information", required = true)
         @RequestBody @Valid CreateBookRequest request
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
         Book book = bookService.createBook(
             request.getTitle(),
             request.getAuthor(),
@@ -184,6 +215,7 @@ public class BookController {
     /**
      * Create a new book with multiple copies across different libraries
      * Supports multi-library collections and multiple copies per library
+     * Access: LIBRARIAN only
      * 
      * @param request Book creation request with library copies configuration
      * @return Created book information with copies details
@@ -191,7 +223,7 @@ public class BookController {
     @PostMapping("/with-copies")
     @Operation(
         summary = "Create new book with copies",
-        description = "Create a new book with multiple copies distributed across different libraries"
+        description = "Create a new book with multiple copies distributed across different libraries. LIBRARIAN access only."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -237,6 +269,8 @@ public class BookController {
         @Parameter(description = "Book creation information with library copies", required = true)
         @RequestBody @Valid CreateBookWithCopiesRequest request
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
         BookWithCopiesResponse response = bookService.createBookWithCopies(request);
         
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -245,6 +279,7 @@ public class BookController {
     
     /**
      * Add more copies to an existing book across different libraries
+     * Access: LIBRARIAN only
      * 
      * @param request Add book copies request
      * @return Updated book information with new copies details
@@ -252,7 +287,7 @@ public class BookController {
     @PostMapping("/add-copies")
     @Operation(
         summary = "Add copies to existing book",
-        description = "Add more copies to an existing book across different libraries"
+        description = "Add more copies to an existing book across different libraries. LIBRARIAN access only."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -302,6 +337,8 @@ public class BookController {
         @Parameter(description = "Add book copies information", required = true)
         @RequestBody @Valid AddBookCopiesRequest request
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
         BookWithCopiesResponse response = bookService.addBookCopies(request);
         
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -310,6 +347,7 @@ public class BookController {
     
     /**
      * Search books by criteria
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param title Book title (optional)
      * @param author Book author (optional)
@@ -319,7 +357,7 @@ public class BookController {
     @GetMapping("/search")
     @Operation(
         summary = "Search books",
-        description = "Search books by title, author, or category"
+        description = "Search books by title, author, or category. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -351,6 +389,7 @@ public class BookController {
     
     /**
      * Get books by category
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param category Book category
      * @return List of books in the category
@@ -358,7 +397,7 @@ public class BookController {
     @GetMapping("/category/{category}")
     @Operation(
         summary = "Get books by category",
-        description = "Retrieve all books in a specific category"
+        description = "Retrieve all books in a specific category. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -376,6 +415,7 @@ public class BookController {
     
     /**
      * Get books by author
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param author Book author
      * @return List of books by the author
@@ -383,7 +423,7 @@ public class BookController {
     @GetMapping("/author/{author}")
     @Operation(
         summary = "Get books by author",
-        description = "Retrieve all books by a specific author"
+        description = "Retrieve all books by a specific author. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -401,6 +441,7 @@ public class BookController {
     
     /**
      * Get books by published year
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param year Published year
      * @return List of books published in the year
@@ -408,7 +449,7 @@ public class BookController {
     @GetMapping("/year/{year}")
     @Operation(
         summary = "Get books by published year",
-        description = "Retrieve all books published in a specific year"
+        description = "Retrieve all books published in a specific year. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -426,6 +467,7 @@ public class BookController {
     
     /**
      * Check if book is available
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param id Book ID
      * @param libraryId Library ID
@@ -434,7 +476,7 @@ public class BookController {
     @GetMapping("/{id}/available")
     @Operation(
         summary = "Check book availability",
-        description = "Check if a book is available for borrowing at a specific library"
+        description = "Check if a book is available for borrowing at a specific library. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -454,6 +496,7 @@ public class BookController {
     
     /**
      * Get available copy count
+     * Access: All authenticated users (MEMBER, LIBRARIAN)
      * 
      * @param id Book ID
      * @param libraryId Library ID
@@ -462,7 +505,7 @@ public class BookController {
     @GetMapping("/{id}/available-count")
     @Operation(
         summary = "Get available copy count",
-        description = "Get the number of available copies of a book at a specific library"
+        description = "Get the number of available copies of a book at a specific library. Accessible by all authenticated users."
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
