@@ -24,7 +24,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/api/libraries")
+@RequestMapping("/libraries")
 @Validated
 @Tag(name = "Libraries", description = "Library management endpoints")
 public class LibraryController {

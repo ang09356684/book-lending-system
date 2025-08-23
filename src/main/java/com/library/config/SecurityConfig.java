@@ -43,19 +43,19 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints - no authentication required
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/books/**").permitAll()
-                .requestMatchers("/api/libraries/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/books/**").permitAll()
+                .requestMatchers("/libraries/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 
                 // Endpoints requiring authentication
-                .requestMatchers("/api/borrows/**").authenticated()
-                .requestMatchers("/api/users/**").authenticated()
+                .requestMatchers("/borrows/**").authenticated()
+                .requestMatchers("/users/**").authenticated()
                 
                 // Endpoints requiring specific roles
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/librarian/**").hasRole("LIBRARIAN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/librarian/**").hasRole("LIBRARIAN")
                 
                 // All other requests require authentication
                 .anyRequest().authenticated()

@@ -24,7 +24,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @Validated
 @Tag(name = "Users", description = "User management endpoints")
 @SecurityRequirement(name = "Bearer Authentication")

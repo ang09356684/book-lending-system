@@ -26,7 +26,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/api/borrows")
+@RequestMapping("/borrows")
 @Validated
 @Tag(name = "Borrows", description = "Book borrowing and returning endpoints")
 @SecurityRequirement(name = "Bearer Authentication")
