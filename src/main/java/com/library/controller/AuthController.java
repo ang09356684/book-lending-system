@@ -167,30 +167,7 @@ public class AuthController {
     
 
     
-    /**
-     * Check if email exists
-     * 
-     * @param email Email to check
-     * @return Boolean indicating if email exists
-     */
-    @GetMapping("/check-email")
-    @Operation(
-        summary = "Check email availability",
-        description = "Check if an email is already registered"
-    )
-    @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Email availability checked"
-        )
-    })
-    public ResponseEntity<ApiResponse<Boolean>> checkEmail(
-        @Parameter(description = "Email to check", required = true, example = "john@example.com")
-        @RequestParam String email
-    ) {
-        boolean exists = userService.existsByEmail(email);
-        return ResponseEntity.ok(ApiResponse.success(exists));
-    }
+
     
     /**
      * User login with JWT token generation
@@ -264,15 +241,5 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(loginResponse, "Login successful"));
     }
     
-    /**
-     * Test JWT token validation
-     */
-    @GetMapping("/test")
-    @Operation(
-        summary = "Test JWT token",
-        description = "Test if JWT token is valid"
-    )
-    public ResponseEntity<ApiResponse<String>> testToken() {
-        return ResponseEntity.ok(ApiResponse.success("JWT token is valid", "Token validation successful"));
-    }
+
 }

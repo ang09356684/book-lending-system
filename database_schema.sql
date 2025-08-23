@@ -30,16 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_users_role_id ON users(role_id);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_librarian_id ON users(librarian_id);
 
--- Librarian account external verification records
-CREATE TABLE IF NOT EXISTS librarian_verifications (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    external_api_url VARCHAR(255) NOT NULL,
-    request_time TIMESTAMP DEFAULT NOW(),
-    response_code INT,
-    response_message TEXT,
-    verified BOOLEAN NOT NULL DEFAULT FALSE
-);
+
 
 -- ========================================
 -- 2. Libraries and Collections
@@ -51,7 +42,8 @@ CREATE TABLE IF NOT EXISTS libraries (
     name VARCHAR(100) UNIQUE NOT NULL,
     address TEXT NOT NULL,
     phone VARCHAR(20),
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Book basic information (not copies)
@@ -62,7 +54,8 @@ CREATE TABLE IF NOT EXISTS books (
     published_year INT CHECK (published_year > 0),
     category VARCHAR(50) NOT NULL,
     book_type VARCHAR(20) NOT NULL DEFAULT '圖書' CHECK (book_type IN ('圖書', '書籍')),
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
 -- Book related indexes
@@ -81,6 +74,7 @@ CREATE TABLE IF NOT EXISTS book_copies (
     status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE'
         CHECK (status IN ('AVAILABLE','BORROWED','LOST','DAMAGED')),
     created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(book_id, library_id, copy_number)
 );
 
@@ -147,6 +141,18 @@ INSERT INTO roles (name, description) VALUES
 ('LIBRARIAN', 'Librarian - Can manage book data'),
 ('MEMBER', 'General user - Can search books, borrow and return')
 ON CONFLICT (name) DO NOTHING;
+
+-- User data
+INSERT INTO users (name, password, email, role_id, librarian_id, is_verified) VALUES 
+-- General users (MEMBER role)
+('John Doe', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'john.doe@example.com', 
+ (SELECT id FROM roles WHERE name = 'MEMBER'), NULL, FALSE),
+('Jane Smith', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jane.smith@example.com', 
+ (SELECT id FROM roles WHERE name = 'MEMBER'), NULL, FALSE),
+-- Librarian (LIBRARIAN role, verified)
+('Librarian Admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'librarian@library.com', 
+ (SELECT id FROM roles WHERE name = 'LIBRARIAN'), 'LIB001', TRUE)
+ON CONFLICT (email) DO NOTHING;
 
 -- Library data
 INSERT INTO libraries (name, address, phone) VALUES 

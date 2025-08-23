@@ -96,8 +96,8 @@ public class BookService {
     /**
      * Search books
      */
-    public List<Book> searchBooks(String title, String author, String category) {
-        return bookRepository.searchBooks(title, author, category);
+    public List<Book> searchBooks(String title, String author, Integer publishedYear) {
+        return bookRepository.searchBooks(title, author, publishedYear);
     }
     
     /**
@@ -314,10 +314,10 @@ public class BookService {
      * Search books with copy summary
      */
     public List<BookWithCopySummaryResponse> searchBooksWithCopySummary(
-            String title, String author, String category, Long libraryId, int page, int size) {
+            String title, String author, Integer publishedYear, Long libraryId, int page, int size) {
         
         // Get books based on search criteria
-        List<Book> books = bookRepository.searchBooks(title, author, category);
+        List<Book> books = bookRepository.searchBooks(title, author, publishedYear);
         
         // Apply pagination
         if (page < 0) page = 0;
@@ -543,6 +543,77 @@ public class BookService {
             book.getBookType(),
             libraryCopyInfos
         );
+    }
+    
+    /**
+     * Update book information
+     */
+    public Book updateBook(Long bookId, String title, String author, Integer publishedYear, String category, String bookType) {
+        Book book = findById(bookId);
+        
+        // Validate book type
+        if (bookType != null && !"圖書".equals(bookType) && !"書籍".equals(bookType)) {
+            throw new RuntimeException("Book type must be either '圖書' or '書籍'");
+        }
+        
+        // Update fields if provided
+        if (title != null && !title.trim().isEmpty()) {
+            book.setTitle(title);
+        }
+        
+        if (author != null && !author.trim().isEmpty()) {
+            book.setAuthor(author);
+        }
+        
+        if (publishedYear != null && publishedYear > 0) {
+            book.setPublishedYear(publishedYear);
+        }
+        
+        if (category != null && !category.trim().isEmpty()) {
+            book.setCategory(category);
+        }
+        
+        if (bookType != null && !bookType.trim().isEmpty()) {
+            book.setBookType(bookType);
+        }
+        
+        return bookRepository.save(book);
+    }
+    
+    /**
+     * Update book copy information
+     */
+    public BookCopy updateBookCopy(Long copyId, Integer copyNumber, String status) {
+        BookCopy bookCopy = bookCopyRepository.findById(copyId)
+            .orElseThrow(() -> new RuntimeException("Book copy not found"));
+        
+        // Validate status
+        if (status != null && !status.matches("AVAILABLE|BORROWED|LOST|DAMAGED")) {
+            throw new RuntimeException("Invalid status. Must be AVAILABLE, BORROWED, LOST, or DAMAGED");
+        }
+        
+        // Update copy number if provided
+        if (copyNumber != null && copyNumber > 0) {
+            // Check if copy number already exists for this book in this library
+            List<BookCopy> existingCopies = bookCopyRepository.findByBookIdAndLibraryId(
+                bookCopy.getBook().getId(), bookCopy.getLibrary().getId());
+            
+            boolean copyNumberExists = existingCopies.stream()
+                .anyMatch(copy -> !copy.getId().equals(copyId) && copy.getCopyNumber().equals(copyNumber));
+            
+            if (copyNumberExists) {
+                throw new RuntimeException("Copy number already exists for this book in this library");
+            }
+            
+            bookCopy.setCopyNumber(copyNumber);
+        }
+        
+        // Update status if provided
+        if (status != null && !status.trim().isEmpty()) {
+            bookCopy.setStatus(status);
+        }
+        
+        return bookCopyRepository.save(bookCopy);
     }
     
     /**

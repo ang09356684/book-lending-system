@@ -1,6 +1,7 @@
 package com.library.controller;
 
 import com.library.dto.ApiResponse;
+import com.library.dto.request.UpdateUserRequest;
 import com.library.dto.response.UserResponse;
 import com.library.entity.Role;
 import com.library.entity.User;
@@ -20,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 /**
@@ -156,47 +158,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success(List.of()));
     }
     
-    /**
-     * Get verified users by role
-     * 
-     * @param roleName Role name (USER, LIBRARIAN, ADMIN)
-     * @return List of verified users with the specified role
-     */
-    @GetMapping("/role/{roleName}/verified")
-    @Operation(
-        summary = "Get verified users by role",
-        description = "Retrieve all verified users with a specific role"
-    )
-    @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Verified users retrieved successfully"
-        )
-    })
-    public ResponseEntity<ApiResponse<List<UserResponse>>> getVerifiedUsersByRole(
-        @Parameter(description = "Role name", required = true, example = "LIBRARIAN", schema = @Schema(allowableValues = {"MEMBER", "LIBRARIAN"}))
-        @PathVariable String roleName
-    ) {
-        // Get role by name
-        Role role = roleRepository.findByName(roleName)
-            .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
-        
-        // Get verified users by role
-        List<User> verifiedUsers = userService.findVerifiedUsersByRole(role);
-        
-        // Convert to UserResponse
-        List<UserResponse> userResponses = verifiedUsers.stream()
-            .map(user -> new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole().getName()
-            ))
-            .toList();
-        
-        return ResponseEntity.ok(ApiResponse.success(userResponses, 
-            "Found " + userResponses.size() + " verified " + roleName + " users"));
-    }
+
     
     /**
      * Update user verification status
@@ -231,40 +193,54 @@ public class UserController {
     }
     
     /**
-     * Count users by role
+     * Update user information
      * 
-     * @param roleName Role name (USER, LIBRARIAN, ADMIN)
-     * @return Number of users with the specified role
+     * @param id User ID
+     * @param request Update user request
+     * @return Updated user information
      */
-    @GetMapping("/role/{roleName}/count")
+    @PutMapping("/{id}")
     @Operation(
-        summary = "Count users by role",
-        description = "Get the number of users with a specific role"
+        summary = "Update user",
+        description = "Update user information"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
-            description = "User count retrieved successfully",
-            content = @Content(
-                mediaType = "application/json",
-                examples = @ExampleObject(
-                    value = """
-                    {
-                        "success": true,
-                        "data": 25,
-                        "message": "User count retrieved"
-                    }
-                    """
-                )
-            )
+            description = "User updated successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "User not found"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data"
         )
     })
-    public ResponseEntity<ApiResponse<Long>> countUsersByRole(
-        @Parameter(description = "Role name", required = true, example = "USER", schema = @Schema(allowableValues = {"USER", "LIBRARIAN", "ADMIN"}))
-        @PathVariable String roleName
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+        @Parameter(description = "User ID", required = true, example = "1")
+        @PathVariable Long id,
+        @Parameter(description = "Update user information", required = true)
+        @RequestBody @Valid UpdateUserRequest request
     ) {
-        // This would require RoleService to get Role by name
-        // For now, we'll return 0 as placeholder
-        return ResponseEntity.ok(ApiResponse.success(0L));
+        // Check permissions: users can only update their own data, librarians can update all users
+        User currentUser = getCurrentUser();
+        if (!currentUser.getRole().getName().equals("LIBRARIAN") && !currentUser.getId().equals(id)) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Access denied. You can only update your own information."));
+        }
+        
+        User user = userService.updateUser(id, request.getName(), request.getEmail(), request.getPassword());
+        
+        UserResponse userResponse = new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole().getName()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success(userResponse, "User updated successfully"));
     }
+    
+
 }

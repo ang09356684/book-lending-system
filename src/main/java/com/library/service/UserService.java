@@ -166,6 +166,36 @@ public class UserService {
     }
     
     /**
+     * Update user information
+     */
+    public User updateUser(Long userId, String name, String email, String password) {
+        User user = findById(userId);
+        
+        // Update name if provided
+        if (name != null && !name.trim().isEmpty()) {
+            user.setName(name);
+        }
+        
+        // Update email if provided and not already exists
+        if (email != null && !email.trim().isEmpty()) {
+            if (!email.equals(user.getEmail()) && userRepository.existsByEmail(email)) {
+                throw new RuntimeException("Email already exists");
+            }
+            user.setEmail(email);
+        }
+        
+        // Update password if provided
+        if (password != null && !password.trim().isEmpty()) {
+            if (password.length() < 6) {
+                throw new RuntimeException("Password must be at least 6 characters");
+            }
+            user.setPassword(passwordEncoder.encode(password));
+        }
+        
+        return userRepository.save(user);
+    }
+    
+    /**
      * Count users by role
      */
     public long countByRole(Role role) {

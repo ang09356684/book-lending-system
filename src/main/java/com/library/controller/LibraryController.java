@@ -1,21 +1,27 @@
 package com.library.controller;
 
 import com.library.dto.ApiResponse;
+import com.library.dto.request.CreateLibraryRequest;
+import com.library.dto.request.UpdateLibraryRequest;
 import com.library.dto.response.LibraryResponse;
 import com.library.entity.Library;
+import com.library.entity.User;
 import com.library.service.LibraryService;
+import com.library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 /**
@@ -31,9 +37,31 @@ import java.util.List;
 public class LibraryController {
     
     private final LibraryService libraryService;
+    private final UserService userService;
     
-    public LibraryController(LibraryService libraryService) {
+    public LibraryController(LibraryService libraryService, UserService userService) {
         this.libraryService = libraryService;
+        this.userService = userService;
+    }
+    
+    /**
+     * Check if current user is a librarian
+     */
+    private boolean isLibrarian() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User currentUser = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Current user not found"));
+        return "LIBRARIAN".equals(currentUser.getRole().getName());
+    }
+    
+    /**
+     * Check librarian permissions and throw exception if not authorized
+     */
+    private void checkLibrarianPermission() {
+        if (!isLibrarian()) {
+            throw new RuntimeException("Access denied. Only librarians can perform this operation.");
+        }
     }
     
     /**
@@ -174,18 +202,28 @@ public class LibraryController {
             description = "Invalid input data"
         )
     })
-    public ResponseEntity<ApiResponse<Library>> createLibrary(
+    public ResponseEntity<ApiResponse<LibraryResponse>> createLibrary(
         @Parameter(description = "Library information", required = true)
-        @RequestBody Library library
+        @RequestBody @Valid CreateLibraryRequest request
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
+        
         Library createdLibrary = libraryService.createLibrary(
-            library.getName(),
-            library.getAddress(),
-            library.getPhone()
+            request.getName(),
+            request.getAddress(),
+            request.getPhone()
+        );
+        
+        LibraryResponse libraryResponse = new LibraryResponse(
+            createdLibrary.getId(),
+            createdLibrary.getName(),
+            createdLibrary.getAddress(),
+            createdLibrary.getPhone()
         );
         
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success(createdLibrary, "Library created successfully"));
+            .body(ApiResponse.success(libraryResponse, "Library created successfully"));
     }
     
     /**
@@ -210,20 +248,30 @@ public class LibraryController {
             description = "Library not found"
         )
     })
-    public ResponseEntity<ApiResponse<Library>> updateLibrary(
+    public ResponseEntity<ApiResponse<LibraryResponse>> updateLibrary(
         @Parameter(description = "Library ID", required = true, example = "1")
         @PathVariable Long id,
         @Parameter(description = "Updated library information", required = true)
-        @RequestBody Library library
+        @RequestBody @Valid UpdateLibraryRequest request
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
+        
         Library updatedLibrary = libraryService.updateLibrary(
             id,
-            library.getName(),
-            library.getAddress(),
-            library.getPhone()
+            request.getName(),
+            request.getAddress(),
+            request.getPhone()
         );
         
-        return ResponseEntity.ok(ApiResponse.success(updatedLibrary, "Library updated successfully"));
+        LibraryResponse libraryResponse = new LibraryResponse(
+            updatedLibrary.getId(),
+            updatedLibrary.getName(),
+            updatedLibrary.getAddress(),
+            updatedLibrary.getPhone()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success(libraryResponse, "Library updated successfully"));
     }
     
     /**
@@ -251,44 +299,12 @@ public class LibraryController {
         @Parameter(description = "Library ID", required = true, example = "1")
         @PathVariable Long id
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
+        
         libraryService.deleteLibrary(id);
         return ResponseEntity.ok(ApiResponse.success("Library deleted successfully"));
     }
     
-    /**
-     * Check if library exists by name
-     * 
-     * @param name Library name
-     * @return Boolean indicating if library exists
-     */
-    @GetMapping("/exists/{name}")
-    @Operation(
-        summary = "Check library existence",
-        description = "Check if a library exists by name"
-    )
-    @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Existence checked successfully",
-            content = @Content(
-                mediaType = "application/json",
-                examples = @ExampleObject(
-                    value = """
-                    {
-                        "success": true,
-                        "data": true,
-                        "message": "Library exists"
-                    }
-                    """
-                )
-            )
-        )
-    })
-    public ResponseEntity<ApiResponse<Boolean>> libraryExists(
-        @Parameter(description = "Library name", required = true, example = "Central Library")
-        @PathVariable String name
-    ) {
-        boolean exists = libraryService.existsByName(name);
-        return ResponseEntity.ok(ApiResponse.success(exists));
-    }
+
 }

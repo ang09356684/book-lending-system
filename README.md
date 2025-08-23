@@ -115,6 +115,69 @@ docker-compose -f docker-compose.dev.yml up --build
 - **API 文件 JSON**: http://localhost:8080/api/v3/api-docs
 - **健康檢查**: http://localhost:8080/api/actuator/health
 
+### 🗄️ **資料庫管理 (pgAdmin)**
+
+#### **登入資訊**
+- **訪問網址**: http://localhost:5050
+- **Email**: `admin@library.com`
+- **密碼**: `admin`
+
+### 👤 **測試帳號**
+
+#### **一般用戶 (MEMBER 角色)**
+| 姓名 | Email | 密碼 | 角色 | 驗證狀態 |
+|------|-------|------|------|----------|
+| John Doe | `john.doe@example.com` | `password` | MEMBER | 未驗證 |
+| Jane Smith | `jane.smith@example.com` | `password` | MEMBER | 未驗證 |
+
+#### **圖書館員 (LIBRARIAN 角色)**
+| 姓名 | Email | 密碼 | 角色 | 館員ID | 驗證狀態 |
+|------|-------|------|------|--------|----------|
+| Librarian Admin | `librarian@library.com` | `password` | LIBRARIAN | LIB001 | 已驗證 |
+
+#### **連接 PostgreSQL 資料庫**
+登入 pgAdmin 後，添加伺服器連接：
+
+**伺服器連接資訊：**
+- **主機名稱/地址**: `postgres` (Docker 容器名稱)
+- **端口**: `5432`
+- **維護資料庫**: `library`
+- **使用者名稱**: `postgres`
+- **密碼**: `password`
+
+#### **故障排除**
+如果遇到連接問題：
+
+1. **檢查容器狀態**：
+   ```bash
+   docker ps
+   docker logs library-postgres
+   ```
+
+2. **重新啟動服務**：
+   ```bash
+   docker-compose -f docker-compose.dev.yml down
+   docker-compose -f docker-compose.dev.yml up -d
+   ```
+
+3. **手動測試連接**：
+   ```bash
+   docker exec -it library-postgres psql -U postgres -d library
+   ```
+
+4. **檢查網路連接**：
+   ```bash
+   docker network ls
+   docker network inspect library_library-network
+   ```
+
+#### **使用步驟**
+1. 啟動服務後訪問 `http://localhost:5050`
+2. 使用上述帳號密碼登入 pgAdmin
+3. 右鍵點擊 "Servers" → "Register" → "Server"
+4. 在 "General" 標籤輸入名稱（如：Library DB）
+5. 在 "Connection" 標籤輸入連接資訊
+
 ### 📋 **主要 API 端點**
 
 - **認證**: `/api/auth/*` - 註冊、登入、登出

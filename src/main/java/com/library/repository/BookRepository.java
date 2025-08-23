@@ -28,11 +28,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query(value = "SELECT * FROM books WHERE " +
            "(:title IS NULL OR title ILIKE '%' || :title || '%') AND " +
            "(:author IS NULL OR author ILIKE '%' || :author || '%') AND " +
-           "(:category IS NULL OR category = :category)", 
+           "(:publishedYear IS NULL OR published_year = :publishedYear)", 
            nativeQuery = true)
     List<Book> searchBooks(@Param("title") String title, 
                            @Param("author") String author, 
-                           @Param("category") String category);
+                           @Param("publishedYear") Integer publishedYear);
     
     // Pagination queries
     Page<Book> findByCategory(String category, Pageable pageable);
