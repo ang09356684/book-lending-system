@@ -26,9 +26,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         return createUserDetails(user);
     }
@@ -38,10 +38,10 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     private UserDetails createUserDetails(User user) {
         // Set authorities based on user role
-        String role = user.getRole() != null ? user.getRole().getName() : "USER";
+        String role = user.getRole() != null ? user.getRole().getName() : "MEMBER";
         
         return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUsername())
+                .username(user.getEmail())
                 .password(user.getPassword())
                 .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)))
                 .accountExpired(false)
