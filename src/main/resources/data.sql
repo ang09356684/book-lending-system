@@ -18,8 +18,8 @@ INSERT INTO books (title, author, published_year, category, book_type) VALUES
 ('Java Programming Practice Guide', 'John Smith', 2023, 'Programming', '圖書'),
 ('Database Systems Introduction', 'Mary Johnson', 2022, 'Computer Science', '圖書'),
 ('Algorithms and Data Structures', 'David Wilson', 2021, 'Computer Science', '圖書'),
-('Software Engineering Best Practices', 'Sarah Chen', 2024, 'Software Engineering', '圖書'),
-('Artificial Intelligence and Machine Learning', 'Michael Brown', 2023, 'Artificial Intelligence', '圖書');
+('Software Engineering Best Practices', 'Sarah Chen', 2024, 'Software Engineering', '書籍'),
+('Artificial Intelligence and Machine Learning', 'Michael Brown', 2023, 'Artificial Intelligence', '書籍');
 
 -- Initialize book copies
 -- Each book has 1-3 copies distributed across different libraries

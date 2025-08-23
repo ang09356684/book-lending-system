@@ -1,7 +1,9 @@
 package com.library.dto.request;
 
+import com.library.constant.BookType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -32,6 +34,9 @@ public class UpdateBookRequest {
     private String category;
     
     @NotBlank(message = "Book type is required")
-    @Size(min = 1, max = 20, message = "Book type length must be between 1-20 characters")
+    @Pattern(
+        regexp = "^(圖書|書籍)$",
+        message = "Book type must be either '圖書' or '書籍'"
+    )
     private String bookType;
 }

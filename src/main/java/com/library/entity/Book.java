@@ -1,5 +1,6 @@
 package com.library.entity;
 
+import com.library.constant.BookType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,7 +44,7 @@ public class Book {
     private String category;
     
     @Column(name = "book_type", nullable = false, length = 20)
-    private String bookType; // "圖書" or "書籍"
+    private String bookType; // Use BookType.TRADITIONAL or BookType.MODERN
     
     @CreatedDate
     @Column(name = "created_at")
@@ -73,6 +74,6 @@ public class Book {
         this.author = author;
         this.publishedYear = publishedYear;
         this.category = category;
-        this.bookType = "圖書"; // Default to "圖書"
+        this.bookType = BookType.DEFAULT; // Default to "圖書"
     }
 }

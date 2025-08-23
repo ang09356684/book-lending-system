@@ -31,8 +31,8 @@ public class NotificationController {
      * This endpoint is for testing purposes only
      */
     @Operation(
-        summary = "手動觸發逾期通知檢查",
-        description = "手動執行逾期通知檢查，用於測試排程功能"
+        summary = "Manually trigger overdue notification check",
+        description = "Manually execute overdue notification check for testing scheduled tasks"
     )
     @PostMapping("/trigger-overdue-check")
     public ResponseEntity<ApiResponse<String>> triggerOverdueCheck() {

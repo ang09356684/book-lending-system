@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 
 /**
  * User Controller - Handles user management operations
@@ -92,8 +93,72 @@ public class UserController {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return userService.findByEmailWithRole(email)
-            .orElseThrow(() -> new RuntimeException("Current user not found"));
+        
+        // Always use findByEmailWithRole to ensure role is loaded
+        User user = userService.findByEmailWithRole(email)
+            .orElseThrow(() -> new RuntimeException("Current user not found: " + email));
+        
+        // Ensure role is loaded
+        if (user.getRole() == null) {
+            throw new RuntimeException("User role not found for: " + email);
+        }
+        
+        return user;
+    }
+    
+    /**
+     * Check if current user is a librarian
+     */
+    private boolean isLibrarian() {
+        User currentUser = getCurrentUser();
+        return "LIBRARIAN".equals(currentUser.getRole().getName());
+    }
+    
+    /**
+     * Check librarian permissions and throw exception if not authorized
+     */
+    private void checkLibrarianPermission() {
+        if (!isLibrarian()) {
+            throw new RuntimeException("Access denied. Only librarians can perform this operation.");
+        }
+    }
+    
+    /**
+     * Debug endpoint to check current user
+     */
+    @GetMapping("/debug/current")
+    @Operation(
+        summary = "Debug current user",
+        description = "Get current authenticated user information for debugging"
+    )
+    public ResponseEntity<ApiResponse<Object>> debugCurrentUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            
+            User user = userService.findByEmailWithRole(email)
+                .orElse(null);
+                
+            if (user == null) {
+                return ResponseEntity.ok(ApiResponse.success(Map.of(
+                    "email", email,
+                    "error", "User not found"
+                )));
+            }
+            
+            return ResponseEntity.ok(ApiResponse.success(Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "role", user.getRole() != null ? user.getRole().getName() : "NULL",
+                "isVerified", user.getIsVerified()
+            )));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.success(Map.of(
+                "error", e.getMessage(),
+                "stackTrace", e.getStackTrace()[0].toString()
+            )));
+        }
     }
     
     /**
@@ -105,7 +170,7 @@ public class UserController {
     @GetMapping("/email/{email}")
     @Operation(
         summary = "Get user by email",
-        description = "Retrieve a user by their email address"
+        description = "Retrieve a user by their email address. **Librarian access only.**"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -121,6 +186,9 @@ public class UserController {
         @Parameter(description = "Email address", required = true, example = "john@example.com")
         @PathVariable String email
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
+        
         User user = userService.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
         UserResponse userResponse = new UserResponse(
@@ -141,7 +209,7 @@ public class UserController {
     @GetMapping("/role/{roleName}")
     @Operation(
         summary = "Get users by role",
-        description = "Retrieve all users with a specific role"
+        description = "Retrieve all users with a specific role. **Librarian access only.**"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -153,9 +221,27 @@ public class UserController {
         @Parameter(description = "Role name", required = true, example = "MEMBER", schema = @Schema(allowableValues = {"MEMBER", "LIBRARIAN"}))
         @PathVariable String roleName
     ) {
-        // This would require RoleService to get Role by name
-        // For now, we'll return an empty list as placeholder
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        // Check librarian permissions
+        checkLibrarianPermission();
+        
+        // Get role by name
+        Role role = roleRepository.findByName(roleName)
+            .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+        
+        // Get users by role
+        List<User> users = userService.findByRole(role);
+        
+        // Convert to UserResponse
+        List<UserResponse> userResponses = users.stream()
+            .map(user -> new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().getName()
+            ))
+            .toList();
+        
+        return ResponseEntity.ok(ApiResponse.success(userResponses));
     }
     
 
@@ -170,7 +256,7 @@ public class UserController {
     @PutMapping("/{id}/verification")
     @Operation(
         summary = "Update user verification status",
-        description = "Update the verification status of a user"
+        description = "Update the verification status of a user. **Librarian access only.**"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -182,14 +268,25 @@ public class UserController {
             description = "User not found"
         )
     })
-    public ResponseEntity<ApiResponse<User>> updateVerificationStatus(
+    public ResponseEntity<ApiResponse<UserResponse>> updateVerificationStatus(
         @Parameter(description = "User ID", required = true, example = "1")
         @PathVariable Long id,
         @Parameter(description = "Verification status", required = true, example = "true")
         @RequestParam boolean verified
     ) {
+        // Check librarian permissions
+        checkLibrarianPermission();
+        
         User user = userService.updateVerificationStatus(id, verified);
-        return ResponseEntity.ok(ApiResponse.success(user, "Verification status updated successfully"));
+        
+        UserResponse userResponse = new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole().getName()
+        );
+        
+        return ResponseEntity.ok(ApiResponse.success(userResponse, "Verification status updated successfully"));
     }
     
     /**
