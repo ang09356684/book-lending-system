@@ -38,6 +38,7 @@ clean:
 db-init:
 	@echo "Initializing database..."
 	docker exec -i library-postgres psql -U postgres -d library < database_schema.sql
+	docker exec -i library-postgres psql -U postgres -d library < src/main/resources/data.sql
 	@echo "Database initialization completed!"
 
 # Reset database (delete all data)
@@ -55,6 +56,7 @@ db-clear:
 	@echo "Clearing database tables..."
 	docker exec -i library-postgres psql -U postgres -d library -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 	docker exec -i library-postgres psql -U postgres -d library < database_schema.sql
+	docker exec -i library-postgres psql -U postgres -d library < src/main/resources/data.sql
 	@echo "Database cleared and reinitialized!"
 
 # View logs
