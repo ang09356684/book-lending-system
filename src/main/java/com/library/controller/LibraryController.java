@@ -1,6 +1,7 @@
 package com.library.controller;
 
 import com.library.dto.ApiResponse;
+import com.library.dto.response.LibraryResponse;
 import com.library.entity.Library;
 import com.library.service.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,9 +52,17 @@ public class LibraryController {
             description = "Libraries retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<Library>>> getAllLibraries() {
+    public ResponseEntity<ApiResponse<List<LibraryResponse>>> getAllLibraries() {
         List<Library> libraries = libraryService.findAll();
-        return ResponseEntity.ok(ApiResponse.success(libraries));
+        List<LibraryResponse> libraryResponses = libraries.stream()
+            .map(library -> new LibraryResponse(
+                library.getId(),
+                library.getName(),
+                library.getAddress(),
+                library.getPhone()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(libraryResponses));
     }
     
     /**
@@ -77,12 +86,18 @@ public class LibraryController {
             description = "Library not found"
         )
     })
-    public ResponseEntity<ApiResponse<Library>> getLibrary(
+    public ResponseEntity<ApiResponse<LibraryResponse>> getLibrary(
         @Parameter(description = "Library ID", required = true, example = "1")
         @PathVariable Long id
     ) {
         Library library = libraryService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(library));
+        LibraryResponse libraryResponse = new LibraryResponse(
+            library.getId(),
+            library.getName(),
+            library.getAddress(),
+            library.getPhone()
+        );
+        return ResponseEntity.ok(ApiResponse.success(libraryResponse));
     }
     
     /**
@@ -106,13 +121,19 @@ public class LibraryController {
             description = "Library not found"
         )
     })
-    public ResponseEntity<ApiResponse<Library>> getLibraryByName(
+    public ResponseEntity<ApiResponse<LibraryResponse>> getLibraryByName(
         @Parameter(description = "Library name", required = true, example = "Central Library")
         @PathVariable String name
     ) {
         Library library = libraryService.findByName(name)
             .orElseThrow(() -> new RuntimeException("Library not found"));
-        return ResponseEntity.ok(ApiResponse.success(library));
+        LibraryResponse libraryResponse = new LibraryResponse(
+            library.getId(),
+            library.getName(),
+            library.getAddress(),
+            library.getPhone()
+        );
+        return ResponseEntity.ok(ApiResponse.success(libraryResponse));
     }
     
     /**

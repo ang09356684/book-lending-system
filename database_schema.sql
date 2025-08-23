@@ -15,10 +15,9 @@ CREATE TABLE IF NOT EXISTS roles (
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,            -- User's full name
     password VARCHAR(255) NOT NULL,        -- Password (needs encryption)
-    email VARCHAR(100) UNIQUE NOT NULL,
-    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,    -- Email (used for login)
     role_id BIGINT NOT NULL,
     librarian_id VARCHAR(50),              -- Librarian ID (librarians only)
     is_verified BOOLEAN DEFAULT FALSE,     -- Librarian accounts need external verification

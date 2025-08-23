@@ -5,6 +5,7 @@ import com.library.dto.request.LibrarianRegisterRequest;
 import com.library.dto.request.RegisterRequest;
 import com.library.dto.request.LoginRequest;
 import com.library.dto.response.LoginResponse;
+import com.library.dto.response.UserResponse;
 import com.library.entity.User;
 import com.library.security.JwtTokenProvider;
 import com.library.service.UserService;
@@ -100,19 +101,25 @@ public class AuthController {
             )
         )
     })
-    public ResponseEntity<ApiResponse<User>> register(
+    public ResponseEntity<ApiResponse<UserResponse>> register(
         @Parameter(description = "User registration information", required = true)
         @RequestBody @Valid RegisterRequest request
     ) {
         User user = userService.registerUser(
-            request.getUsername(),
+            request.getName(),
             request.getEmail(),
-            request.getPassword(),
-            request.getFullName()
+            request.getPassword()
+        );
+        
+        UserResponse userResponse = new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole().getName()
         );
         
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success(user, "User registered successfully"));
+            .body(ApiResponse.success(userResponse, "User registered successfully"));
     }
     
     /**
@@ -136,58 +143,29 @@ public class AuthController {
             description = "Invalid input data or external verification failed"
         )
     })
-    public ResponseEntity<ApiResponse<User>> registerLibrarian(
+    public ResponseEntity<ApiResponse<UserResponse>> registerLibrarian(
         @Parameter(description = "Librarian registration information", required = true)
         @RequestBody @Valid LibrarianRegisterRequest request
     ) {
         User librarian = userService.registerLibrarian(
-            request.getUsername(),
+            request.getName(),
             request.getEmail(),
             request.getPassword(),
-            request.getFullName(),
             request.getLibrarianId()
         );
         
+        UserResponse userResponse = new UserResponse(
+            librarian.getId(),
+            librarian.getName(),
+            librarian.getEmail(),
+            librarian.getRole().getName()
+        );
+        
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success(librarian, "Librarian registered successfully"));
+            .body(ApiResponse.success(userResponse, "Librarian registered successfully"));
     }
     
-    /**
-     * Check if username exists
-     * 
-     * @param username Username to check
-     * @return Boolean indicating if username exists
-     */
-    @GetMapping("/check-username")
-    @Operation(
-        summary = "Check username availability",
-        description = "Check if a username is already taken"
-    )
-    @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "Username availability checked",
-            content = @Content(
-                mediaType = "application/json",
-                examples = @ExampleObject(
-                    value = """
-                    {
-                        "success": true,
-                        "data": false,
-                        "message": "Username is available"
-                    }
-                    """
-                )
-            )
-        )
-    })
-    public ResponseEntity<ApiResponse<Boolean>> checkUsername(
-        @Parameter(description = "Username to check", required = true, example = "john_doe")
-        @RequestParam String username
-    ) {
-        boolean exists = userService.existsByUsername(username);
-        return ResponseEntity.ok(ApiResponse.success(exists));
-    }
+
     
     /**
      * Check if email exists
@@ -273,13 +251,13 @@ public class AuthController {
         @RequestBody @Valid LoginRequest request
     ) {
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
         
-        User user = userService.findByUsername(request.getUsername())
+        User user = userService.findByEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
         LoginResponse loginResponse = new LoginResponse(jwt, user);
         

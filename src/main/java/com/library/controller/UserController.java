@@ -1,6 +1,7 @@
 package com.library.controller;
 
 import com.library.dto.ApiResponse;
+import com.library.dto.response.UserResponse;
 import com.library.entity.User;
 import com.library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,42 +58,18 @@ public class UserController {
             description = "User not found"
         )
     })
-    public ResponseEntity<ApiResponse<User>> getUser(
+    public ResponseEntity<ApiResponse<UserResponse>> getUser(
         @Parameter(description = "User ID", required = true, example = "1")
         @PathVariable Long id
     ) {
         User user = userService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(user));
-    }
-    
-    /**
-     * Get user by username
-     * 
-     * @param username Username
-     * @return User information
-     */
-    @GetMapping("/username/{username}")
-    @Operation(
-        summary = "Get user by username",
-        description = "Retrieve a user by their username"
-    )
-    @ApiResponses(value = {
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "200",
-            description = "User found successfully"
-        ),
-        @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "404",
-            description = "User not found"
-        )
-    })
-    public ResponseEntity<ApiResponse<User>> getUserByUsername(
-        @Parameter(description = "Username", required = true, example = "john_doe")
-        @PathVariable String username
-    ) {
-        User user = userService.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(ApiResponse.success(user));
+        UserResponse userResponse = new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole().getName()
+        );
+        return ResponseEntity.ok(ApiResponse.success(userResponse));
     }
     
     /**
@@ -116,13 +93,19 @@ public class UserController {
             description = "User not found"
         )
     })
-    public ResponseEntity<ApiResponse<User>> getUserByEmail(
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(
         @Parameter(description = "Email address", required = true, example = "john@example.com")
         @PathVariable String email
     ) {
         User user = userService.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(ApiResponse.success(user));
+        UserResponse userResponse = new UserResponse(
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole().getName()
+        );
+        return ResponseEntity.ok(ApiResponse.success(userResponse));
     }
     
     /**
@@ -142,8 +125,8 @@ public class UserController {
             description = "Users retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<User>>> getUsersByRole(
-        @Parameter(description = "Role name", required = true, example = "USER", schema = @Schema(allowableValues = {"USER", "LIBRARIAN", "ADMIN"}))
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getUsersByRole(
+        @Parameter(description = "Role name", required = true, example = "MEMBER", schema = @Schema(allowableValues = {"MEMBER", "LIBRARIAN"}))
         @PathVariable String roleName
     ) {
         // This would require RoleService to get Role by name
@@ -168,8 +151,8 @@ public class UserController {
             description = "Verified users retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<User>>> getVerifiedUsersByRole(
-        @Parameter(description = "Role name", required = true, example = "LIBRARIAN", schema = @Schema(allowableValues = {"USER", "LIBRARIAN", "ADMIN"}))
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getVerifiedUsersByRole(
+        @Parameter(description = "Role name", required = true, example = "LIBRARIAN", schema = @Schema(allowableValues = {"MEMBER", "LIBRARIAN"}))
         @PathVariable String roleName
     ) {
         // This would require RoleService to get Role by name

@@ -36,10 +36,10 @@ public class UserService {
     /**
      * Register a new user
      */
-    public User registerUser(String username, String email, String password, String fullName) {
+    public User registerUser(String name, String email, String password) {
         // Validate input
-        if (username == null || username.trim().isEmpty()) {
-            throw new RuntimeException("Username is required");
+        if (name == null || name.trim().isEmpty()) {
+            throw new RuntimeException("Name is required");
         }
         
         if (email == null || email.trim().isEmpty()) {
@@ -51,33 +51,29 @@ public class UserService {
         }
         
         // Check if user already exists
-        if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists");
-        }
-        
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already exists");
         }
         
         // Get default role
-        Role userRole = roleRepository.findByName("USER")
+        Role userRole = roleRepository.findByName("MEMBER")
             .orElseThrow(() -> new RuntimeException("Default role not found"));
         
         // Encrypt password
         String encodedPassword = passwordEncoder.encode(password);
         
         // Create user
-        User user = new User(username, encodedPassword, email, fullName, userRole);
+        User user = new User(name, encodedPassword, email, userRole);
         return userRepository.save(user);
     }
     
     /**
      * Register a new librarian with external verification
      */
-    public User registerLibrarian(String username, String email, String password, String fullName, String librarianId) {
+    public User registerLibrarian(String name, String email, String password, String librarianId) {
         // Validate input
-        if (username == null || username.trim().isEmpty()) {
-            throw new RuntimeException("Username is required");
+        if (name == null || name.trim().isEmpty()) {
+            throw new RuntimeException("Name is required");
         }
         
         if (email == null || email.trim().isEmpty()) {
@@ -93,10 +89,6 @@ public class UserService {
         }
         
         // Check if user already exists
-        if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException("Username already exists");
-        }
-        
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already exists");
         }
@@ -115,15 +107,10 @@ public class UserService {
         String encodedPassword = passwordEncoder.encode(password);
         
         // Create librarian user
-        User librarian = new User(username, encodedPassword, email, fullName, librarianRole);
+        User librarian = new User(name, encodedPassword, email, librarianRole);
+        librarian.setLibrarianId(librarianId);
+        librarian.setIsVerified(true);
         return userRepository.save(librarian);
-    }
-    
-    /**
-     * Find user by username
-     */
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
     }
     
     /**
@@ -145,13 +132,6 @@ public class UserService {
      */
     public List<User> findVerifiedUsersByRole(Role role) {
         return userRepository.findVerifiedUsersByRole(role, true);
-    }
-    
-    /**
-     * Check if username exists
-     */
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
     }
     
     /**

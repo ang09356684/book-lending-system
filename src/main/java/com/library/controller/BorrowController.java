@@ -2,6 +2,7 @@ package com.library.controller;
 
 import com.library.dto.ApiResponse;
 import com.library.dto.request.BorrowRequest;
+import com.library.dto.response.BorrowRecordResponse;
 import com.library.entity.BorrowRecord;
 import com.library.service.BorrowService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,7 +83,7 @@ public class BorrowController {
             description = "Book copy or user not found"
         )
     })
-    public ResponseEntity<ApiResponse<BorrowRecord>> borrowBook(
+    public ResponseEntity<ApiResponse<BorrowRecordResponse>> borrowBook(
         @Parameter(description = "Book copy ID", required = true, example = "1")
         @PathVariable Long bookCopyId,
         @Parameter(description = "Borrow request information", required = true)
@@ -93,7 +94,8 @@ public class BorrowController {
             bookCopyId
         );
         
-        return ResponseEntity.ok(ApiResponse.success(record, "Book borrowed successfully"));
+        BorrowRecordResponse response = convertToBorrowRecordResponse(record);
+        return ResponseEntity.ok(ApiResponse.success(response, "Book borrowed successfully"));
     }
     
     /**
@@ -117,12 +119,13 @@ public class BorrowController {
             description = "Borrow record not found"
         )
     })
-    public ResponseEntity<ApiResponse<BorrowRecord>> returnBook(
+    public ResponseEntity<ApiResponse<BorrowRecordResponse>> returnBook(
         @Parameter(description = "Borrow record ID", required = true, example = "1")
         @PathVariable Long recordId
     ) {
         BorrowRecord record = borrowService.returnBook(recordId);
-        return ResponseEntity.ok(ApiResponse.success(record, "Book returned successfully"));
+        BorrowRecordResponse response = convertToBorrowRecordResponse(record);
+        return ResponseEntity.ok(ApiResponse.success(response, "Book returned successfully"));
     }
     
     /**
@@ -313,5 +316,22 @@ public class BorrowController {
         // This would typically be injected, but for simplicity we'll call the service directly
         // In a real application, you'd inject NotificationService here
         return ResponseEntity.ok(ApiResponse.success("Notifications sent successfully"));
+    }
+    
+    /**
+     * Convert BorrowRecord entity to BorrowRecordResponse DTO
+     */
+    private BorrowRecordResponse convertToBorrowRecordResponse(BorrowRecord record) {
+        return new BorrowRecordResponse(
+            record.getId(),
+            record.getUser().getName(),
+            record.getBookCopy().getBook().getTitle(),
+            record.getBookCopy().getLibrary().getName(),
+            record.getBookCopy().getCopyNumber(),
+            record.getBorrowedAt(),
+            record.getDueAt(),
+            record.getReturnedAt(),
+            record.getStatus()
+        );
     }
 }

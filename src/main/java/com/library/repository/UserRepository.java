@@ -22,10 +22,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     
     // Basic query methods
-    Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     List<User> findByRole(Role role);
-    boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     
     // Complex queries
@@ -34,10 +32,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     // Search functionality
     @Query("SELECT u FROM User u WHERE " +
-           "(:username IS NULL OR LOWER(u.username) LIKE LOWER(CONCAT('%', :username, '%'))) AND " +
+           "(:name IS NULL OR LOWER(u.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
            "(:email IS NULL OR LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%'))) AND " +
            "(:role IS NULL OR u.role = :role)")
-    List<User> searchUsers(@Param("username") String username, 
+    List<User> searchUsers(@Param("name") String name, 
                            @Param("email") String email, 
                            @Param("role") Role role);
     

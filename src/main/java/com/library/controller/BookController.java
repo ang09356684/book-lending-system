@@ -2,6 +2,7 @@ package com.library.controller;
 
 import com.library.dto.ApiResponse;
 import com.library.dto.request.CreateBookRequest;
+import com.library.dto.response.BookResponse;
 import com.library.entity.Book;
 import com.library.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,14 +56,24 @@ public class BookController {
             description = "Books retrieved successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<Book>>> getAllBooks(
+    public ResponseEntity<ApiResponse<List<BookResponse>>> getAllBooks(
         @Parameter(description = "Page number (0-based)", example = "0")
         @RequestParam(defaultValue = "0") int page,
         @Parameter(description = "Page size", example = "10")
         @RequestParam(defaultValue = "10") int size
     ) {
         List<Book> books = bookService.searchBooks(null, null, null);
-        return ResponseEntity.ok(ApiResponse.success(books));
+        List<BookResponse> bookResponses = books.stream()
+            .map(book -> new BookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublishedYear(),
+                book.getCategory(),
+                book.getBookType()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(bookResponses));
     }
     
     /**
@@ -86,12 +97,20 @@ public class BookController {
             description = "Book not found"
         )
     })
-    public ResponseEntity<ApiResponse<Book>> getBook(
+    public ResponseEntity<ApiResponse<BookResponse>> getBook(
         @Parameter(description = "Book ID", required = true, example = "1")
         @PathVariable Long id
     ) {
         Book book = bookService.findById(id);
-        return ResponseEntity.ok(ApiResponse.success(book));
+        BookResponse bookResponse = new BookResponse(
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getPublishedYear(),
+            book.getCategory(),
+            book.getBookType()
+        );
+        return ResponseEntity.ok(ApiResponse.success(bookResponse));
     }
     
     /**
@@ -134,7 +153,7 @@ public class BookController {
             description = "Invalid input data"
         )
     })
-    public ResponseEntity<ApiResponse<Book>> createBook(
+    public ResponseEntity<ApiResponse<BookResponse>> createBook(
         @Parameter(description = "Book creation information", required = true)
         @RequestBody @Valid CreateBookRequest request
     ) {
@@ -146,8 +165,17 @@ public class BookController {
             request.getBookType()
         );
         
+        BookResponse bookResponse = new BookResponse(
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getPublishedYear(),
+            book.getCategory(),
+            book.getBookType()
+        );
+        
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(ApiResponse.success(book, "Book created successfully"));
+            .body(ApiResponse.success(bookResponse, "Book created successfully"));
     }
     
     /**
@@ -169,7 +197,7 @@ public class BookController {
             description = "Search completed successfully"
         )
     })
-    public ResponseEntity<ApiResponse<List<Book>>> searchBooks(
+    public ResponseEntity<ApiResponse<List<BookResponse>>> searchBooks(
         @Parameter(description = "Book title to search for", example = "Gatsby")
         @RequestParam(required = false) String title,
         @Parameter(description = "Book author to search for", example = "Fitzgerald")
@@ -178,7 +206,17 @@ public class BookController {
         @RequestParam(required = false) String category
     ) {
         List<Book> books = bookService.searchBooks(title, author, category);
-        return ResponseEntity.ok(ApiResponse.success(books));
+        List<BookResponse> bookResponses = books.stream()
+            .map(book -> new BookResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getAuthor(),
+                book.getPublishedYear(),
+                book.getCategory(),
+                book.getBookType()
+            ))
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(bookResponses));
     }
     
     /**

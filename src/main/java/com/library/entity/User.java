@@ -27,17 +27,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "username", unique = true, nullable = false, length = 50)
-    private String username;
+    @Column(name = "name", nullable = false, length = 100)
+    private String name;
     
     @Column(name = "password", nullable = false)
     private String password;
     
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
-    
-    @Column(name = "full_name", nullable = false, length = 100)
-    private String fullName;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
@@ -62,11 +59,10 @@ public class User {
     private List<BorrowRecord> borrowRecords;
     
     // Constructor for basic user creation
-    public User(String username, String password, String email, String fullName, Role role) {
-        this.username = username;
+    public User(String name, String password, String email, Role role) {
+        this.name = name;
         this.password = password;
         this.email = email;
-        this.fullName = fullName;
         this.role = role;
     }
 }

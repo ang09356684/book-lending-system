@@ -12,6 +12,7 @@ help:
 	@echo "  clean     - Clean all containers and data"
 	@echo "  db-init   - Initialize database"
 	@echo "  db-reset  - Reset database (delete all data)"
+	@echo "  db-clear  - Clear database tables (keep container)"
 
 # Start all services
 start:
@@ -48,6 +49,13 @@ db-reset:
 	sleep 10
 	docker exec -i library-postgres psql -U postgres -d library < database_schema.sql
 	@echo "Database reset completed!"
+
+# Clear database (drop and recreate tables)
+db-clear:
+	@echo "Clearing database tables..."
+	docker exec -i library-postgres psql -U postgres -d library -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+	docker exec -i library-postgres psql -U postgres -d library < database_schema.sql
+	@echo "Database cleared and reinitialized!"
 
 # View logs
 logs:
