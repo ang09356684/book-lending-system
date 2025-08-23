@@ -1,5 +1,6 @@
 package com.library.service;
 
+import com.library.constant.BookType;
 import com.library.dto.request.AddBookCopiesRequest;
 import com.library.dto.request.CreateBookWithCopiesRequest;
 import com.library.dto.response.BookWithCopiesResponse;
@@ -84,8 +85,8 @@ public class BookService {
         }
         
         // Validate book type
-        if (!"圖書".equals(bookType) && !"書籍".equals(bookType)) {
-            throw new RuntimeException("Book type must be either '圖書' or '書籍'");
+        if (!BookType.TRADITIONAL.equals(bookType) && !BookType.MODERN.equals(bookType)) {
+            throw new RuntimeException("Book type must be either '" + BookType.TRADITIONAL + "' or '" + BookType.MODERN + "'");
         }
         
         // Create book with specified type
@@ -412,8 +413,8 @@ public class BookService {
         }
         
         // Validate book type
-        if (!"圖書".equals(request.getBookType()) && !"書籍".equals(request.getBookType())) {
-            throw new RuntimeException("Book type must be either '圖書' or '書籍'");
+        if (!BookType.TRADITIONAL.equals(request.getBookType()) && !BookType.MODERN.equals(request.getBookType())) {
+            throw new RuntimeException("Book type must be either '" + BookType.TRADITIONAL + "' or '" + BookType.MODERN + "'");
         }
         
         if (request.getLibraryCopies() == null || request.getLibraryCopies().isEmpty()) {
@@ -552,8 +553,8 @@ public class BookService {
         Book book = findById(bookId);
         
         // Validate book type
-        if (bookType != null && !"圖書".equals(bookType) && !"書籍".equals(bookType)) {
-            throw new RuntimeException("Book type must be either '圖書' or '書籍'");
+        if (bookType != null && !BookType.TRADITIONAL.equals(bookType) && !BookType.MODERN.equals(bookType)) {
+            throw new RuntimeException("Book type must be either '" + BookType.TRADITIONAL + "' or '" + BookType.MODERN + "'");
         }
         
         // Update fields if provided

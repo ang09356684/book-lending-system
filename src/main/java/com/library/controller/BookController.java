@@ -7,7 +7,6 @@ import com.library.dto.request.CreateBookWithCopiesRequest;
 import com.library.dto.request.UpdateBookRequest;
 import com.library.dto.request.UpdateBookCopyRequest;
 import com.library.dto.response.BookResponse;
-import com.library.dto.response.SimpleBookResponse;
 import com.library.dto.response.BookWithCopiesResponse;
 import com.library.dto.response.BookCopyResponse;
 import com.library.dto.response.BookWithCopySummaryResponse;

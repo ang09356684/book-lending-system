@@ -36,7 +36,7 @@ public class UpdateBookRequest {
     @NotBlank(message = "Book type is required")
     @Pattern(
         regexp = "^(圖書|書籍)$",
-        message = "Book type must be either '圖書' or '書籍'"
+        message = "Book type must be either '" + BookType.TRADITIONAL + "' or '" + BookType.MODERN + "'"
     )
     private String bookType;
 }

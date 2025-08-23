@@ -1,5 +1,6 @@
 package com.library.service;
 
+import com.library.constant.BookType;
 import com.library.entity.BookCopy;
 import com.library.entity.BorrowRecord;
 import com.library.entity.User;
@@ -82,23 +83,23 @@ public class BorrowService {
     private void checkBorrowingLimits(User user, String bookType) {
         List<BorrowRecord> activeBorrows = borrowRecordRepository.findByUserAndStatus(user, "BORROWED");
         
-        if ("圖書".equals(bookType)) {
-            // Check if user already has 5 圖書
+        if (BookType.TRADITIONAL.equals(bookType)) {
+            // Check if user already has 5 traditional books
             long bookCount = activeBorrows.stream()
-                .filter(record -> "圖書".equals(record.getBookCopy().getBook().getBookType()))
+                .filter(record -> BookType.TRADITIONAL.equals(record.getBookCopy().getBook().getBookType()))
                 .count();
             
             if (bookCount >= 5) {
-                throw new RuntimeException("圖書借閱限制已達上限 (最多5本)");
+                throw new RuntimeException("Traditional book borrowing limit reached (maximum 5 books)");
             }
-        } else if ("書籍".equals(bookType)) {
-            // Check if user already has 10 書籍
+        } else if (BookType.MODERN.equals(bookType)) {
+            // Check if user already has 10 modern books
             long bookCount = activeBorrows.stream()
-                .filter(record -> "書籍".equals(record.getBookCopy().getBook().getBookType()))
+                .filter(record -> BookType.MODERN.equals(record.getBookCopy().getBook().getBookType()))
                 .count();
             
             if (bookCount >= 10) {
-                throw new RuntimeException("書籍借閱限制已達上限 (最多10本)");
+                throw new RuntimeException("Modern book borrowing limit reached (maximum 10 books)");
             }
         }
     }
@@ -202,11 +203,11 @@ public class BorrowService {
         List<BorrowRecord> activeBorrows = borrowRecordRepository.findByUserAndStatus(user, "BORROWED");
         
         long bookCount = activeBorrows.stream()
-            .filter(record -> "圖書".equals(record.getBookCopy().getBook().getBookType()))
+            .filter(record -> BookType.TRADITIONAL.equals(record.getBookCopy().getBook().getBookType()))
             .count();
             
         long bookCount2 = activeBorrows.stream()
-            .filter(record -> "書籍".equals(record.getBookCopy().getBook().getBookType()))
+            .filter(record -> BookType.MODERN.equals(record.getBookCopy().getBook().getBookType()))
             .count();
         
         return new BorrowingStats(bookCount, bookCount2);
