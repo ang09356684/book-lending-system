@@ -1,6 +1,5 @@
 package com.library.dto.response;
 
-import com.library.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,10 +17,10 @@ public class LoginResponse {
 
     private String token;
     private String tokenType = "Bearer";
-    private User user;
+    private String roleName;
 
-    public LoginResponse(String token, User user) {
+    public LoginResponse(String token, String roleName) {
         this.token = token;
-        this.user = user;
+        this.roleName = roleName;
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -21,11 +22,13 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret:defaultSecretKeyForDevelopmentOnly}")
+    @Value("${jwt.secret:defaultSecretKeyForDevelopmentOnly}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration:86400000}") // 24 hours in milliseconds
+    @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
     private long jwtExpirationMs;
+    
+
 
     /**
      * Generate JWT token from authentication
@@ -48,7 +51,7 @@ public class JwtTokenProvider {
                 .subject(username)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiryDate))
-                .signWith(key)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
     }
 

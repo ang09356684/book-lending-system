@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -62,6 +64,12 @@ public class UserController {
         @Parameter(description = "User ID", required = true, example = "1")
         @PathVariable Long id
     ) {
+        // Check permissions: users can only view their own data, librarians can view all users
+        User currentUser = getCurrentUser();
+        if (!currentUser.getRole().getName().equals("LIBRARIAN") && !currentUser.getId().equals(id)) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Access denied"));
+        }
+        
         User user = userService.findById(id);
         UserResponse userResponse = new UserResponse(
             user.getId(),
@@ -70,6 +78,16 @@ public class UserController {
             user.getRole().getName()
         );
         return ResponseEntity.ok(ApiResponse.success(userResponse));
+    }
+    
+    /**
+     * Get current authenticated user
+     */
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userService.findByEmailWithRole(email)
+            .orElseThrow(() -> new RuntimeException("Current user not found"));
     }
     
     /**

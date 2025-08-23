@@ -31,36 +31,27 @@ public class ExternalApiService {
     }
     
     /**
-     * Verify librarian identity with external system
+     * Verify librarian identity with external system (Mock implementation)
      * 
      * @param librarianId The librarian identification code
      * @return true if verification successful, false otherwise
      */
     public boolean verifyLibrarian(String librarianId) {
-        try {
-            // Set up headers
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", authorizationHeader);
-            
-            // Create HTTP entity with headers
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            
-            // Make GET request to external API
-            ResponseEntity<String> response = restTemplate.exchange(
-                verificationUrl,
-                HttpMethod.GET,
-                entity,
-                String.class
-            );
-            
-            // Check if request was successful (HTTP 200)
-            return response.getStatusCode().is2xxSuccessful();
-            
-        } catch (RestClientException e) {
-            // Log the error (in production, use proper logging)
-            System.err.println("External API verification failed: " + e.getMessage());
+        // Mock verification logic: librarianId must contain uppercase 'L'
+        if (librarianId == null || librarianId.trim().isEmpty()) {
+            System.out.println("External API verification failed: librarianId is null or empty");
             return false;
         }
+        
+        boolean isValid = librarianId.contains("L");
+        
+        if (isValid) {
+            System.out.println("External API verification successful for librarianId: " + librarianId);
+        } else {
+            System.out.println("External API verification failed for librarianId: " + librarianId + " (must contain uppercase 'L')");
+        }
+        
+        return isValid;
     }
     
     /**

@@ -259,8 +259,20 @@ public class AuthController {
         
         User user = userService.findByEmail(request.getEmail())
             .orElseThrow(() -> new RuntimeException("User not found"));
-        LoginResponse loginResponse = new LoginResponse(jwt, user);
+        LoginResponse loginResponse = new LoginResponse(jwt, user.getRole().getName());
         
         return ResponseEntity.ok(ApiResponse.success(loginResponse, "Login successful"));
+    }
+    
+    /**
+     * Test JWT token validation
+     */
+    @GetMapping("/test")
+    @Operation(
+        summary = "Test JWT token",
+        description = "Test if JWT token is valid"
+    )
+    public ResponseEntity<ApiResponse<String>> testToken() {
+        return ResponseEntity.ok(ApiResponse.success("JWT token is valid", "Token validation successful"));
     }
 }

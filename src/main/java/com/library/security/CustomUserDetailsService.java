@@ -40,6 +40,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Set authorities based on user role
         String role = user.getRole() != null ? user.getRole().getName() : "MEMBER";
         
+        // Only check is_verified for LIBRARIAN users
+        boolean isDisabled = false;
+        if ("LIBRARIAN".equals(role)) {
+            isDisabled = !user.getIsVerified();
+        }
+        // For MEMBER users, always allow login regardless of is_verified status
+        
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
@@ -47,7 +54,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)
-                .disabled(!user.getIsVerified())
+                .disabled(isDisabled)
                 .build();
     }
 }

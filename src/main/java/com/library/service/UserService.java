@@ -121,6 +121,13 @@ public class UserService {
     }
     
     /**
+     * Find user by email with role loaded
+     */
+    public Optional<User> findByEmailWithRole(String email) {
+        return userRepository.findByEmailWithRole(email);
+    }
+    
+    /**
      * Find users by role
      */
     public List<User> findByRole(Role role) {
