@@ -2,7 +2,9 @@ package com.library.controller;
 
 import com.library.dto.ApiResponse;
 import com.library.dto.response.UserResponse;
+import com.library.entity.Role;
 import com.library.entity.User;
+import com.library.repository.RoleRepository;
 import com.library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,9 +36,11 @@ import java.util.List;
 public class UserController {
     
     private final UserService userService;
+    private final RoleRepository roleRepository;
     
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RoleRepository roleRepository) {
         this.userService = userService;
+        this.roleRepository = roleRepository;
     }
     
     /**
@@ -173,9 +177,25 @@ public class UserController {
         @Parameter(description = "Role name", required = true, example = "LIBRARIAN", schema = @Schema(allowableValues = {"MEMBER", "LIBRARIAN"}))
         @PathVariable String roleName
     ) {
-        // This would require RoleService to get Role by name
-        // For now, we'll return an empty list as placeholder
-        return ResponseEntity.ok(ApiResponse.success(List.of()));
+        // Get role by name
+        Role role = roleRepository.findByName(roleName)
+            .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
+        
+        // Get verified users by role
+        List<User> verifiedUsers = userService.findVerifiedUsersByRole(role);
+        
+        // Convert to UserResponse
+        List<UserResponse> userResponses = verifiedUsers.stream()
+            .map(user -> new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().getName()
+            ))
+            .toList();
+        
+        return ResponseEntity.ok(ApiResponse.success(userResponses, 
+            "Found " + userResponses.size() + " verified " + roleName + " users"));
     }
     
     /**

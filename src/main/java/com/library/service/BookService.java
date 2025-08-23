@@ -1,5 +1,8 @@
 package com.library.service;
 
+import com.library.dto.request.AddBookCopiesRequest;
+import com.library.dto.request.CreateBookWithCopiesRequest;
+import com.library.dto.response.BookWithCopiesResponse;
 import com.library.entity.Book;
 import com.library.entity.BookCopy;
 import com.library.entity.Library;
@@ -9,6 +12,7 @@ import com.library.repository.LibraryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -173,5 +177,181 @@ public class BookService {
      */
     public long getTotalCopyCount(Long bookId) {
         return bookCopyRepository.countByBook(findById(bookId));
+    }
+    
+    /**
+     * Create a new book with multiple copies across different libraries
+     * Supports multi-library collections and multiple copies per library
+     */
+    public BookWithCopiesResponse createBookWithCopies(CreateBookWithCopiesRequest request) {
+        // Validate input
+        if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+            throw new RuntimeException("Book title is required");
+        }
+        
+        if (request.getAuthor() == null || request.getAuthor().trim().isEmpty()) {
+            throw new RuntimeException("Book author is required");
+        }
+        
+        if (request.getCategory() == null || request.getCategory().trim().isEmpty()) {
+            throw new RuntimeException("Book category is required");
+        }
+        
+        if (request.getBookType() == null || request.getBookType().trim().isEmpty()) {
+            throw new RuntimeException("Book type is required");
+        }
+        
+        // Validate book type
+        if (!"圖書".equals(request.getBookType()) && !"書籍".equals(request.getBookType())) {
+            throw new RuntimeException("Book type must be either '圖書' or '書籍'");
+        }
+        
+        if (request.getLibraryCopies() == null || request.getLibraryCopies().isEmpty()) {
+            throw new RuntimeException("At least one library copy configuration is required");
+        }
+        
+        // Create the book
+        Book book = new Book(
+            request.getTitle(),
+            request.getAuthor(),
+            request.getPublishedYear(),
+            request.getCategory(),
+            request.getBookType()
+        );
+        book = bookRepository.save(book);
+        
+        // Create copies for each library
+        List<BookWithCopiesResponse.LibraryCopyInfo> libraryCopyInfos = new ArrayList<>();
+        
+        for (CreateBookWithCopiesRequest.LibraryCopyConfig config : request.getLibraryCopies()) {
+            // Validate library exists
+            Library library = libraryRepository.findById(config.getLibraryId())
+                .orElseThrow(() -> new RuntimeException("Library not found with ID: " + config.getLibraryId()));
+            
+            if (config.getNumberOfCopies() == null || config.getNumberOfCopies() <= 0) {
+                throw new RuntimeException("Number of copies must be greater than 0 for library: " + library.getName());
+            }
+            
+            // Create copies for this library
+            List<BookWithCopiesResponse.CopyInfo> copyInfos = new ArrayList<>();
+            
+            for (int i = 1; i <= config.getNumberOfCopies(); i++) {
+                BookCopy copy = new BookCopy();
+                copy.setBook(book);
+                copy.setLibrary(library);
+                copy.setCopyNumber(i);
+                copy.setStatus("AVAILABLE");
+                
+                copy = bookCopyRepository.save(copy);
+                
+                copyInfos.add(new BookWithCopiesResponse.CopyInfo(
+                    copy.getId(),
+                    copy.getCopyNumber(),
+                    copy.getStatus()
+                ));
+            }
+            
+            libraryCopyInfos.add(new BookWithCopiesResponse.LibraryCopyInfo(
+                library.getId(),
+                library.getName(),
+                config.getNumberOfCopies(),
+                copyInfos
+            ));
+        }
+        
+        return new BookWithCopiesResponse(
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getPublishedYear(),
+            book.getCategory(),
+            book.getBookType(),
+            libraryCopyInfos
+        );
+    }
+    
+    /**
+     * Add more copies to an existing book across different libraries
+     * Supports adding copies to existing libraries or new libraries
+     */
+    public BookWithCopiesResponse addBookCopies(AddBookCopiesRequest request) {
+        // Validate book exists
+        Book book = findById(request.getBookId());
+        
+        if (request.getLibraryCopies() == null || request.getLibraryCopies().isEmpty()) {
+            throw new RuntimeException("At least one library copy configuration is required");
+        }
+        
+        // Create copies for each library
+        List<BookWithCopiesResponse.LibraryCopyInfo> libraryCopyInfos = new ArrayList<>();
+        
+        for (AddBookCopiesRequest.LibraryCopyConfig config : request.getLibraryCopies()) {
+            // Validate library exists
+            Library library = libraryRepository.findById(config.getLibraryId())
+                .orElseThrow(() -> new RuntimeException("Library not found with ID: " + config.getLibraryId()));
+            
+            if (config.getNumberOfCopies() == null || config.getNumberOfCopies() <= 0) {
+                throw new RuntimeException("Number of copies must be greater than 0 for library: " + library.getName());
+            }
+            
+            // Get the next copy number for this book in this library
+            int nextCopyNumber = getNextCopyNumber(book.getId(), library.getId());
+            
+            // Create copies for this library
+            List<BookWithCopiesResponse.CopyInfo> copyInfos = new ArrayList<>();
+            
+            for (int i = 0; i < config.getNumberOfCopies(); i++) {
+                BookCopy copy = new BookCopy();
+                copy.setBook(book);
+                copy.setLibrary(library);
+                copy.setCopyNumber(nextCopyNumber + i);
+                copy.setStatus("AVAILABLE");
+                
+                copy = bookCopyRepository.save(copy);
+                
+                copyInfos.add(new BookWithCopiesResponse.CopyInfo(
+                    copy.getId(),
+                    copy.getCopyNumber(),
+                    copy.getStatus()
+                ));
+            }
+            
+            libraryCopyInfos.add(new BookWithCopiesResponse.LibraryCopyInfo(
+                library.getId(),
+                library.getName(),
+                config.getNumberOfCopies(),
+                copyInfos
+            ));
+        }
+        
+        return new BookWithCopiesResponse(
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getPublishedYear(),
+            book.getCategory(),
+            book.getBookType(),
+            libraryCopyInfos
+        );
+    }
+    
+    /**
+     * Get the next copy number for a book in a specific library
+     */
+    private int getNextCopyNumber(Long bookId, Long libraryId) {
+        // Find the highest copy number for this book in this library
+        List<BookCopy> existingCopies = bookCopyRepository.findByBookIdAndLibraryId(bookId, libraryId);
+        
+        if (existingCopies.isEmpty()) {
+            return 1; // First copy in this library
+        }
+        
+        // Find the highest copy number and add 1
+        int maxCopyNumber = existingCopies.stream()
+            .mapToInt(BookCopy::getCopyNumber)
+            .max()
+            .orElse(0);
+        
+        return maxCopyNumber + 1;
     }
 }

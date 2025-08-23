@@ -42,4 +42,8 @@ public interface BookCopyRepository extends JpaRepository<BookCopy, Long> {
     long countByLibraryAndStatus(Library library, String status);
     long countByBook(Book book);
     long countByLibrary(Library library);
+    
+    // Find copies by book and library
+    @Query("SELECT bc FROM BookCopy bc WHERE bc.book.id = :bookId AND bc.library.id = :libraryId")
+    List<BookCopy> findByBookIdAndLibraryId(@Param("bookId") Long bookId, @Param("libraryId") Long libraryId);
 }

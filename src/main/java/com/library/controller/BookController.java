@@ -1,8 +1,11 @@
 package com.library.controller;
 
 import com.library.dto.ApiResponse;
+import com.library.dto.request.AddBookCopiesRequest;
 import com.library.dto.request.CreateBookRequest;
+import com.library.dto.request.CreateBookWithCopiesRequest;
 import com.library.dto.response.BookResponse;
+import com.library.dto.response.BookWithCopiesResponse;
 import com.library.entity.Book;
 import com.library.service.BookService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -114,15 +117,15 @@ public class BookController {
     }
     
     /**
-     * Create a new book
+     * Create a new book (basic version - only creates book without copies)
      * 
      * @param request Book creation request
      * @return Created book information
      */
     @PostMapping
     @Operation(
-        summary = "Create new book",
-        description = "Create a new book with the provided information"
+        summary = "Create new book (basic)",
+        description = "Create a new book with the provided information (without copies)"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -176,6 +179,133 @@ public class BookController {
         
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(ApiResponse.success(bookResponse, "Book created successfully"));
+    }
+    
+    /**
+     * Create a new book with multiple copies across different libraries
+     * Supports multi-library collections and multiple copies per library
+     * 
+     * @param request Book creation request with library copies configuration
+     * @return Created book information with copies details
+     */
+    @PostMapping("/with-copies")
+    @Operation(
+        summary = "Create new book with copies",
+        description = "Create a new book with multiple copies distributed across different libraries"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "Book with copies created successfully",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "message": "Book with copies created successfully",
+                        "data": {
+                            "id": 1,
+                            "title": "Java Programming Guide",
+                            "author": "John Smith",
+                            "publishedYear": 2023,
+                            "category": "Programming",
+                            "bookType": "圖書",
+                            "libraryCopies": [
+                                {
+                                    "libraryId": 1,
+                                    "libraryName": "Central Library",
+                                    "numberOfCopies": 2,
+                                    "copies": [
+                                        {"copyId": 1, "copyNumber": 1, "status": "AVAILABLE"},
+                                        {"copyId": 2, "copyNumber": 2, "status": "AVAILABLE"}
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                    """
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data"
+        )
+    })
+    public ResponseEntity<ApiResponse<BookWithCopiesResponse>> createBookWithCopies(
+        @Parameter(description = "Book creation information with library copies", required = true)
+        @RequestBody @Valid CreateBookWithCopiesRequest request
+    ) {
+        BookWithCopiesResponse response = bookService.createBookWithCopies(request);
+        
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(response, "Book with copies created successfully"));
+    }
+    
+    /**
+     * Add more copies to an existing book across different libraries
+     * 
+     * @param request Add book copies request
+     * @return Updated book information with new copies details
+     */
+    @PostMapping("/add-copies")
+    @Operation(
+        summary = "Add copies to existing book",
+        description = "Add more copies to an existing book across different libraries"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "Book copies added successfully",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = """
+                    {
+                        "success": true,
+                        "message": "Book copies added successfully",
+                        "data": {
+                            "id": 1,
+                            "title": "Java Programming Guide",
+                            "author": "John Smith",
+                            "publishedYear": 2023,
+                            "category": "Programming",
+                            "bookType": "圖書",
+                            "libraryCopies": [
+                                {
+                                    "libraryId": 1,
+                                    "libraryName": "Central Library",
+                                    "numberOfCopies": 2,
+                                    "copies": [
+                                        {"copyId": 18, "copyNumber": 3, "status": "AVAILABLE"},
+                                        {"copyId": 19, "copyNumber": 4, "status": "AVAILABLE"}
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                    """
+                )
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input data"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Book not found"
+        )
+    })
+    public ResponseEntity<ApiResponse<BookWithCopiesResponse>> addBookCopies(
+        @Parameter(description = "Add book copies information", required = true)
+        @RequestBody @Valid AddBookCopiesRequest request
+    ) {
+        BookWithCopiesResponse response = bookService.addBookCopies(request);
+        
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(ApiResponse.success(response, "Book copies added successfully"));
     }
     
     /**
