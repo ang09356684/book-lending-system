@@ -1,233 +1,178 @@
-# 線上圖書借閱系統
-## Java + Spring Boot 專案
+# Online Library Management System
 
----
+A comprehensive Spring Boot application for managing library operations including book borrowing, returns, and user management across multiple library branches.
 
-### 📁 **專案結構**
+## 📋 Table of Contents
+
+- [Background](#background)
+- [Functional Requirements](#functional-requirements)
+- [Technical Stack](#technical-stack)
+- [Database Schema](#database-schema)
+- [Project Structure](#project-structure)
+- [Quick Start](#quick-start)
+- [API Documentation](#api-documentation)
+
+## 🎯 Background
+
+A city's library system aims to develop an online platform that allows users to:
+- Search and browse book collections across multiple library branches
+- Borrow and return books through a centralized system
+- Manage user accounts and library staff permissions
+- Track borrowing history and overdue notifications
+- Provide real-time availability status for book copies
+
+This system modernizes traditional library operations by providing a digital interface for both library staff and patrons, improving efficiency and user experience.
+
+## 📋 Functional Requirements
+
+### Core Features
+- **User Management**: Registration, authentication, and role-based access control
+- **Book Management**: CRUD operations for books and book copies across multiple libraries
+- **Borrowing System**: Check-out, return, and overdue tracking
+- **Library Management**: Multi-branch library support with individual collections
+- **Notification System**: Automated overdue reminders and system notifications
+- **Search & Discovery**: Book search by title, author, category, and availability
+
+### User Roles
+- **MEMBER**: Regular library patrons who can borrow books
+- **LIBRARIAN**: Library staff with administrative privileges
+
+### Business Rules
+- Users can borrow up to 5 books simultaneously
+- Books are borrowed for 30 days by default
+- Overdue books trigger automatic notifications
+- Librarians can manage book collections and user accounts
+- Book copies are tracked individually across different library branches
+
+## 🛠 Technical Stack
+
+### Backend
+- **Framework**: Spring Boot 3.2.0
+- **Language**: Java 17
+- **Database**: PostgreSQL 17
+- **ORM**: Spring Data JPA with Hibernate
+- **Security**: Spring Security with JWT authentication
+- **API Documentation**: SpringDoc OpenAPI 3 (Swagger)
+
+### Development Tools
+- **Build Tool**: Maven 3.8+
+- **Containerization**: Docker & Docker Compose
+- **Database Management**: pgAdmin 4
+- **Testing**: JUnit 5, Mockito, Spring Boot Test
+
+
+## 🗄 Database Schema
+
+Complete database schema is available in [`database_schema.sql`](./database_schema.sql).
+
+The schema includes:
+- **Users & Authentication**: Roles, users, and librarian management
+- **Library & Book Management**: Libraries, books, and book copies
+- **Borrowing System**: Borrow records and notifications
+
+## 📁 Project Structure
 
 ```
-library-system/
-├── docs/                          # 📚 文件資料夾
-│   ├── PRD_線上圖書借閱系統_輕量版.md    # 產品需求文件
-│   ├── TODO_開發清單.md              # 開發進度清單
-│   ├── Database_Design_Document.md  # 資料庫設計文件
-│   └── README_跨平台開發.md          # 跨平台開發指南
-├── src/                           # 🔧 原始碼（開發時建立）
-├── database_schema.sql            # 🗄️ 資料庫Schema
-├── Dockerfile.dev                 # 🐳 開發環境Dockerfile
-├── docker-compose.dev.yml         # 🐳 開發環境Docker Compose
-├── pom.xml                        # 📦 Maven配置（開發時建立）
-└── README.md                      # 📖 本文件
+library/
+├── src/                           # Source code
+│   ├── main/java/com/library/
+│   │   ├── config/               # Configuration classes
+│   │   ├── constant/             # Constants and enums
+│   │   ├── controller/           # REST API controllers
+│   │   ├── dto/                 # Data Transfer Objects
+│   │   ├── entity/              # JPA entities
+│   │   ├── exception/           # Custom exceptions
+│   │   ├── repository/          # Data access layer
+│   │   ├── security/            # Security configuration
+│   │   └── service/             # Business logic layer
+│   └── resources/
+│       ├── application.yml      # Application configuration
+│       └── data.sql             # Initial data
+├── src/test/                    # Test classes
+├── docs/                        # Documentation
+│   ├── PRD_線上圖書借閱系統.md
+│   ├── Database_Design_Document.md
+│   ├── TODO_開發清單.md
+│   └── ...                     # Other documentation files
+├── education/                   # Learning materials
+│   ├── java-packages/          # Java package explanations
+│   ├── 01_專案初始化與環境準備.md
+│   ├── 02_階段2_Entity層建立.md
+│   └── ...                     # Other learning files
+├── database_schema.sql         # Complete database schema
+├── docker-compose.dev.yml      # Development environment
+├── Dockerfile.dev             # Development Dockerfile
+├── pom.xml                    # Maven configuration
+├── Makefile                   # Development commands
+└── README.md                 # This file
 ```
 
----
+## 🚀 Quick Start
 
-### 🚀 **快速開始**
-
-#### **環境需求**
+### Prerequisites
 - Docker Desktop
 - Git
 
-#### **啟動開發環境**
+### Startup Commands
 ```bash
-# 1. 克隆專案
-git clone <your-repo-url>
-cd library-system
+# Clone and setup
+git clone <repository-url>
+cd library
 
-# 2. 啟動開發環境
-docker-compose -f docker-compose.dev.yml up --build
+# Build and start services
+make build
 
-# 3. 訪問服務
-# 應用程式: http://localhost:8080/api
-# API文件: http://localhost:8080/api/swagger-ui/index.html
-# 資料庫管理: http://localhost:5050
+# Start development environment
+make start
+
+# Initialize database
+make db-init
+
+# Clear database (drop and recreate tables)
+make db-clear
 ```
 
----
+### Access Services
+- **Application**: http://localhost:8080/api
+- **API Documentation**: http://localhost:8080/api/swagger-ui/index.html
+- **Database Admin**: http://localhost:5050 (pgAdmin)
 
-### 📚 **文件說明**
 
-#### **docs/ 資料夾**
-- **PRD文件**: 產品需求規格，定義功能需求
-- **TODO清單**: 開發進度追蹤，75個具體項目
-- **資料庫設計**: 完整的資料庫Schema和設計說明
-- **跨平台指南**: Mac/Windows無縫開發指南
+### Database Management (pgAdmin)
 
-#### **開發檔案**
-- **database_schema.sql**: 可直接執行的PostgreSQL腳本
-- **Dockerfile.dev**: 開發環境容器配置
-- **docker-compose.dev.yml**: 一鍵啟動完整開發環境
-
----
-
-### 🎯 **開發流程**
-
-#### **1. 需求確認**
-```bash
-# 查看PRD文件
-open docs/PRD_線上圖書借閱系統_輕量版.md
-```
-
-#### **2. 進度追蹤**
-```bash
-# 查看開發清單
-open docs/TODO_開發清單.md
-```
-
-#### **3. 資料庫設計**
-```bash
-# 查看資料庫設計
-open docs/Database_Design_Document.md
-```
-
-#### **4. 開始開發**
-```bash
-# 啟動開發環境
-docker-compose -f docker-compose.dev.yml up --build
-```
-
----
-
-### 🛠️ **技術棧**
-
-- **後端**: Spring Boot 3.x + Java 17
-- **資料庫**: PostgreSQL 17
-- **容器化**: Docker + Docker Compose
-- **API文件**: Springdoc OpenAPI 3
-- **測試**: JUnit 5 + Mockito
-
----
-
-### 📊 **功能特色**
-
-- ✅ 會員管理（館員/一般用戶）
-- ✅ 書籍管理（多館館藏）
-- ✅ 借閱還書系統
-- ✅ 到期通知功能
-- ✅ 權限控制
-- ✅ API文件自動生成
-- ✅ 完整測試覆蓋
-- ✅ 跨平台開發支援
-
-### 🌐 **API 文件**
-
-- **Swagger UI**: http://localhost:8080/api/swagger-ui/index.html
-- **API 文件 JSON**: http://localhost:8080/api/v3/api-docs
-- **健康檢查**: http://localhost:8080/api/actuator/health
-
-### 🗄️ **資料庫管理 (pgAdmin)**
-
-#### **登入資訊**
-- **訪問網址**: http://localhost:5050
+#### Login Information
+- **URL**: http://localhost:5050
 - **Email**: `admin@library.com`
-- **密碼**: `admin`
+- **Password**: `admin`
 
-### 👤 **測試帳號**
+#### PostgreSQL Database Connection
+After logging into pgAdmin, add a server connection:
 
-#### **一般用戶 (MEMBER 角色)**
-| 姓名 | Email | 密碼 | 角色 | 驗證狀態 |
-|------|-------|------|------|----------|
-| John Doe | `john.doe@example.com` | `password` | MEMBER | 未驗證 |
-| Jane Smith | `jane.smith@example.com` | `password` | MEMBER | 未驗證 |
+**Server Connection Info:**
+- **Host**: `postgres` (Docker container name)
+- **Port**: `5432`
+- **Database**: `library`
+- **Username**: `postgres`
+- **Password**: `password`
 
-#### **圖書館員 (LIBRARIAN 角色)**
-| 姓名 | Email | 密碼 | 角色 | 館員ID | 驗證狀態 |
-|------|-------|------|------|--------|----------|
-| Librarian Admin | `librarian@library.com` | `password` | LIBRARIAN | LIB001 | 已驗證 |
 
-#### **連接 PostgreSQL 資料庫**
-登入 pgAdmin 後，添加伺服器連接：
+### Test Accounts
 
-**伺服器連接資訊：**
-- **主機名稱/地址**: `postgres` (Docker 容器名稱)
-- **端口**: `5432`
-- **維護資料庫**: `library`
-- **使用者名稱**: `postgres`
-- **密碼**: `password`
+#### Regular Users (MEMBER)
+| Name | Email | Password | Status |
+|------|-------|----------|--------|
+| John Doe | john.doe@example.com | password | Unverified |
+| Jane Smith | jane.smith@example.com | password | Unverified |
 
-#### **故障排除**
-如果遇到連接問題：
+#### Librarian (LIBRARIAN)
+| Name | Email | Password | Librarian ID | Status |
+|------|-------|----------|--------------|--------|
+| Librarian Admin | librarian@library.com | password | LIB001 | Verified |
 
-1. **檢查容器狀態**：
-   ```bash
-   docker ps
-   docker logs library-postgres
-   ```
 
-2. **重新啟動服務**：
-   ```bash
-   docker-compose -f docker-compose.dev.yml down
-   docker-compose -f docker-compose.dev.yml up -d
-   ```
+## 📝 License
 
-3. **手動測試連接**：
-   ```bash
-   docker exec -it library-postgres psql -U postgres -d library
-   ```
-
-4. **檢查網路連接**：
-   ```bash
-   docker network ls
-   docker network inspect library_library-network
-   ```
-
-#### **使用步驟**
-1. 啟動服務後訪問 `http://localhost:5050`
-2. 使用上述帳號密碼登入 pgAdmin
-3. 右鍵點擊 "Servers" → "Register" → "Server"
-4. 在 "General" 標籤輸入名稱（如：Library DB）
-5. 在 "Connection" 標籤輸入連接資訊
-
-### 📋 **主要 API 端點**
-
-- **認證**: `/api/auth/*` - 註冊、登入、登出
-- **書籍管理**: `/api/books/*` - 書籍 CRUD 操作
-- **借閱管理**: `/api/borrowings/*` - 借書、還書、查詢
-- **用戶管理**: `/api/users/*` - 用戶資訊管理
-- **圖書館管理**: `/api/libraries/*` - 圖書館資訊管理
-
+This project is developed for educational and demonstration purposes.
 ---
 
-### 🔄 **跨平台開發**
-
-支援在Mac、Windows、Linux之間無縫切換開發：
-- 只需要Docker Desktop
-- 環境完全一致
-- 一鍵啟動開發環境
-
-詳細說明請參考：`docs/README_跨平台開發.md`
-
----
-
-### 📝 **開發進度**
-
-- [ ] 環境準備
-- [ ] 專案初始化
-- [ ] 資料庫配置
-- [ ] 實體類別建立
-- [ ] Repository層
-- [ ] Service層
-- [ ] Controller層
-- [ ] 權限控制
-- [ ] API文件
-- [ ] 單元測試
-- [ ] Docker配置
-- [ ] 文件與部署
-
-詳細進度請參考：`docs/TODO_開發清單.md`
-
----
-
-### 🎯 **面試重點**
-
-本專案展示：
-- Spring Boot開發能力
-- 資料庫設計能力
-- Docker容器化技術
-- API設計能力
-- 測試驅動開發
-- 跨平台開發能力
-
----
-
-**準備好開始開發了嗎？請參考 `docs/TODO_開發清單.md` 開始您的開發之旅！**
+**Ready to explore? Start with the API documentation at http://localhost:8080/api/swagger-ui/index.html**

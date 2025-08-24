@@ -13,6 +13,19 @@ ON CONFLICT (name) DO UPDATE SET
     address = EXCLUDED.address,
     phone = EXCLUDED.phone;
 
+
+-- User data
+INSERT INTO users (name, password, email, role_id, librarian_id, is_verified) VALUES 
+-- General users (MEMBER role)
+('John Doe', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'john.doe@example.com', 
+ (SELECT id FROM roles WHERE name = 'MEMBER'), NULL, FALSE),
+('Jane Smith', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jane.smith@example.com', 
+ (SELECT id FROM roles WHERE name = 'MEMBER'), NULL, FALSE),
+-- Librarian (LIBRARIAN role, verified)
+('Librarian Admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'librarian@library.com', 
+ (SELECT id FROM roles WHERE name = 'LIBRARIAN'), 'LIB001', TRUE)
+ON CONFLICT (email) DO NOTHING;
+
 -- Initialize books
 INSERT INTO books (title, author, published_year, category, book_type) VALUES
 ('Java Programming Practice Guide', 'John Smith', 2023, 'Programming', '圖書'),
