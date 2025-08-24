@@ -4,12 +4,15 @@ import com.library.repository.BookCopyRepositoryTest;
 import com.library.repository.BookRepositoryTest;
 import com.library.repository.BorrowRecordRepositoryTest;
 import com.library.repository.UserRepositoryTest;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 
 /**
- * Repository 測試套件
- * 一次性執行所有 Repository 測試，避免重複啟動 Spring 容器
+ * Repository Test Suite
+ * Execute all Repository tests in one go, avoiding repeated Spring container startup
  * 
  * @author Library System
  * @version 1.0.0
@@ -21,6 +24,14 @@ import org.junit.platform.suite.api.Suite;
     BookCopyRepositoryTest.class,
     BorrowRecordRepositoryTest.class
 })
+@TestPropertySource(properties = {
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+    "spring.jpa.show-sql=false",
+    "spring.jpa.properties.hibernate.format_sql=false"
+})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RepositoryTestSuite {
-    // 測試套件，不需要額外方法
+    // Test suite, no additional methods needed
 }

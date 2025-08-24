@@ -13,7 +13,13 @@ help:
 	@echo "  db-init   - Initialize database"
 	@echo "  db-reset  - Reset database (delete all data)"
 	@echo "  db-clear  - Clear database tables (keep container)"
-	@echo "  test      - Run all unit tests with coverage report"
+	@echo ""
+	@echo "Testing commands:"
+	@echo "  test              - Run all unit tests with coverage report"
+	@echo "  test-repo-service - Run Repository and Service tests (optimized)"
+	@echo "  test-repo         - Run Repository tests only"
+	@echo "  test-service      - Run Service tests only"
+	@echo "  test-class        - Run specific test class (use CLASS=ClassName)"
 
 # Start all services
 start:
@@ -81,3 +87,32 @@ test:
 	@echo "All tests completed!"
 	@echo "Coverage report generated in target/site/jacoco/index.html"
 	@echo "To view coverage report, open: target/site/jacoco/index.html"
+
+# Run Repository and Service tests only (optimized)
+test-repo-service:
+	@echo "Running Repository and Service tests (optimized execution)..."
+	docker-compose -f docker-compose.dev.yml exec app-dev mvn test -Dtest=CompleteTestSuite
+	@echo "Repository and Service tests completed!"
+
+# Run Repository tests only
+test-repo:
+	@echo "Running Repository tests only..."
+	docker-compose -f docker-compose.dev.yml exec app-dev mvn test -Dtest=RepositoryTestSuite
+	@echo "Repository tests completed!"
+
+# Run Service tests only
+test-service:
+	@echo "Running Service tests only..."
+	docker-compose -f docker-compose.dev.yml exec app-dev mvn test -Dtest=ServiceTestSuite
+	@echo "Service tests completed!"
+
+# Run specific test class
+test-class:
+	@echo "Usage: make test-class CLASS=ClassName"
+	@echo "Example: make test-class CLASS=UserServiceTest"
+	@if [ -z "$(CLASS)" ]; then \
+		echo "Please specify a test class name using CLASS=ClassName"; \
+		exit 1; \
+	fi
+	docker-compose -f docker-compose.dev.yml exec app-dev mvn test -Dtest=$(CLASS)
+	@echo "Test class $(CLASS) completed!"
