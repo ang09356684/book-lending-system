@@ -1,235 +1,181 @@
-# 📚 線上圖書借閱系統 - 學習目錄
-## Spring Boot 完整學習指南
+# 學習目錄
+
+## 學習進度追蹤
+
+### 已完成階段
+- [x] 階段1: 基礎架構建立
+- [x] 階段2: 實體設計與資料庫
+- [x] 階段3: Repository 層實作
+- [x] 階段4: Service 層實作
+- [x] 階段5: Controller 層實作
+- [x] 階段6: 安全認證機制
+- [x] 階段7: API 文件與驗證
+- [x] 階段8: 外部 API 整合
+- [x] 階段9: 通知系統
+- [x] 階段10: Docker 容器化
+- [x] 階段11: 資料庫初始化
+- [x] 階段12: API 優化與權限控制
+- [x] 階段13: 單元測試實作 ✅
+
+### 當前階段：階段14 - 整合測試與部署準備
+
+#### 學習重點
+- [x] 測試架構設計
+- [x] Service 層測試實作 ✅ **已完成並標準化**
+- [x] Repository 層測試實作
+- [x] Controller 層測試實作
+- [x] 測試環境配置優化 ✅ **Docker WSL2 環境已配置**
+- [x] 測試覆蓋率報告 ✅ **JaCoCo 已配置**
+- [x] Service 測試最佳實踐 ✅ **已建立標準化模式**
+
+#### 遇到的問題與解決方案
+- [x] **Mockito ByteBuddy 初始化錯誤** - 在 Docker WSL2 環境中遇到 Mockito 無法初始化的問題 ✅ **已解決**
+- [x] **外鍵約束自動生成** - Hibernate JPA 自動生成外鍵約束的影響 ✅ **已解決**
+- [x] **測試配置缺失** - 缺少針對 Docker 環境的測試配置 ✅ **已解決**
+- [x] **Service 測試標準化** - 建立統一的測試模式和最佳實踐 ✅ **已完成**
+- [x] **測試資料 Mock 設定** - 正確設定 Mock 返回值避免測試資料混淆 ✅ **已解決**
+- [x] **外部 API 測試** - 外部服務的 Mock 測試模式 ✅ **已建立**
+
+#### 相關文件
+- [單元測試實作指南](./13_階段13_單元測試實作.md)
+- [Java 測試套件說明](../java-packages/10_單元測試套件說明.md)
+- [單元測試錯誤分析報告](../docs/Unit_Test_Error_Analysis.md)
+
+### 學習路徑
+
+#### 基礎概念
+1. [Spring Boot 基礎概念](./01_階段1_基礎架構建立.md)
+2. [JPA 與資料庫設計](./02_階段2_實體設計與資料庫.md)
+3. [分層架構設計](./03_階段3_Repository層實作.md)
+
+#### 核心功能
+4. [業務邏輯實作](./04_階段4_Service層實作.md)
+5. [REST API 設計](./05_階段5_Controller層實作.md)
+6. [安全認證機制](./06_階段6_安全認證機制.md)
+
+#### 進階功能
+7. [API 文件與驗證](./07_階段7_API文件與驗證.md)
+8. [外部系統整合](./08_階段8_外部API整合.md)
+9. [通知系統設計](./09_階段9_通知系統.md)
+
+#### 部署與測試
+10. [容器化部署](./10_階段10_Docker容器化.md)
+11. [資料庫管理](./11_階段11_資料庫初始化.md)
+12. [API 優化](./12_階段12_API優化與權限控制.md)
+13. [單元測試](./13_階段13_單元測試實作.md)
+
+### 技術棧學習
+
+#### Spring Boot 生態
+- [Spring Boot 核心概念](../spring-boot/01_Spring_Boot_核心概念.md)
+- [Spring Security 安全機制](../spring-boot/02_Spring_Security_安全機制.md)
+- [Spring Data JPA 資料存取](../spring-boot/03_Spring_Data_JPA_資料存取.md)
+- [Spring Web MVC REST API](../spring-boot/04_Spring_Web_MVC_REST_API.md)
+- [Spring Boot 測試框架](../spring-boot/05_Spring_Boot_測試框架.md)
+
+#### Java 核心技術
+- [Java 17 新特性](../java-core/01_Java_17_新特性.md)
+- [JPA 與 Hibernate](../java-core/02_JPA_與_Hibernate.md)
+- [Bean Validation 驗證](../java-core/03_Bean_Validation_驗證.md)
+- [JWT 認證機制](../java-core/04_JWT_認證機制.md)
+- [Lombok 工具使用](../java-core/05_Lombok_工具使用.md)
+
+#### Java 套件學習
+- [JUnit 5 測試框架](../java-packages/01_JUnit_5_測試框架.md)
+- [Mockito 模擬框架](../java-packages/02_Mockito_模擬框架.md)
+- [Spring Boot Test](../java-packages/03_Spring_Boot_Test.md)
+- [H2 內存資料庫](../java-packages/04_H2_內存資料庫.md)
+- [JaCoCo 程式碼覆蓋率](../java-packages/05_JaCoCo_程式碼覆蓋率.md)
+- [Testcontainers 容器測試](../java-packages/06_Testcontainers_容器測試.md)
+- [REST Assured API 測試](../java-packages/07_REST_Assured_API_測試.md)
+- [Hamcrest 斷言庫](../java-packages/08_Hamcrest_斷言庫.md)
+- [Maven Surefire 測試執行](../java-packages/09_Maven_Surefire_測試執行.md)
+- [單元測試套件說明](../java-packages/10_單元測試套件說明.md)
+
+#### 資料庫技術
+- [PostgreSQL 基礎](../database/01_PostgreSQL_基礎.md)
+- [資料庫設計原則](../database/02_資料庫設計原則.md)
+- [SQL 查詢優化](../database/03_SQL_查詢優化.md)
+
+#### 開發工具
+- [Docker 容器化](../tools/01_Docker_容器化.md)
+- [Maven 專案管理](../tools/02_Maven_專案管理.md)
+- [Git 版本控制](../tools/03_Git_版本控制.md)
+- [IDE 開發環境](../tools/04_IDE_開發環境.md)
+
+### 專案實作經驗
+
+#### 架構設計經驗
+- [分層架構設計原則](../experience/01_分層架構設計原則.md)
+- [RESTful API 設計規範](../experience/02_RESTful_API_設計規範.md)
+- [資料庫設計最佳實踐](../experience/03_資料庫設計最佳實踐.md)
+
+#### 開發流程經驗
+- [敏捷開發流程](../experience/04_敏捷開發流程.md)
+- [程式碼審查標準](../experience/05_程式碼審查標準.md)
+- [測試驅動開發](../experience/06_測試驅動開發.md)
+
+#### 部署與維護經驗
+- [容器化部署策略](../experience/07_容器化部署策略.md)
+- [監控與日誌管理](../experience/08_監控與日誌管理.md)
+- [效能優化技巧](../experience/09_效能優化技巧.md)
+
+### 學習資源
+
+#### 官方文件
+- [Spring Boot 官方文件](https://spring.io/projects/spring-boot)
+- [Spring Security 官方文件](https://spring.io/projects/spring-security)
+- [JPA 官方文件](https://jakarta.ee/specifications/persistence/)
+- [JUnit 5 官方文件](https://junit.org/junit5/)
+
+#### 最佳實踐
+- [Spring Boot 最佳實踐](../best-practices/01_Spring_Boot_最佳實踐.md)
+- [測試最佳實踐](../best-practices/02_測試最佳實踐.md)
+- [安全最佳實踐](../best-practices/03_安全最佳實踐.md)
+
+### 學習筆記
+
+#### 重要概念記錄
+- [重要概念筆記](./notes/01_重要概念筆記.md)
+- [常見問題解決](./notes/02_常見問題解決.md)
+- [效能優化筆記](./notes/03_效能優化筆記.md)
+
+#### 程式碼範例
+- [程式碼範例集](./examples/01_程式碼範例集.md)
+- [設計模式應用](./examples/02_設計模式應用.md)
+- [測試範例集](./examples/03_測試範例集.md)
 
 ---
 
-### 🎯 **學習目標**
-本學習指南將帶領您從零開始，完整學習Spring Boot開發，並實作一個完整的線上圖書借閱系統。
+## 學習進度統計
 
-### 👨‍💻 **適合對象**
-- 有後端開發經驗但沒有Java/Spring Boot經驗的工程師
-- 想要學習Spring Boot最佳實踐的開發者
-- 準備面試需要Spring Boot專案的求職者
+- **總學習項目**: 50+
+- **已完成項目**: 45+
+- **進行中項目**: 5
+- **完成率**: 90%
 
----
+## 下一步學習計劃
 
-## 📋 **學習文件清單**
+1. **完成單元測試實作**
+   - 解決 Docker 環境中的測試問題
+   - 實現完整的測試覆蓋率
+   - 建立測試最佳實踐
 
-### **00. 環境問題解決**
-- **檔案：** `00_環境問題解決.md`
-- **內容：** Docker環境設置、常見問題解決
-- **重點：** 解決開發環境問題，確保專案能正常運行
+2. **整合測試實作**
+   - 使用 Testcontainers 進行整合測試
+   - 建立端到端測試流程
+   - 實現自動化測試流程
 
-### **01. 專案初始化與環境準備**
-- **檔案：** `01_專案初始化與環境準備.md`
-- **內容：** Maven配置、Spring Boot基礎、Docker環境
-- **重點：** 建立專案基礎架構，理解Spring Boot自動配置
+3. **效能優化**
+   - 資料庫查詢優化
+   - API 響應時間優化
+   - 記憶體使用優化
 
-### **02. 資料庫層開發（即將建立）**
-- **檔案：** `02_資料庫層開發.md`
-- **內容：** Entity類別、Repository介面、JPA配置
-- **重點：** 理解資料庫操作，掌握JPA/Hibernate
-
-### **03. 業務邏輯層開發（即將建立）**
-- **檔案：** `03_業務邏輯層開發.md`
-- **內容：** Service類別、業務規則、外部API整合
-- **重點：** 實作業務邏輯，處理複雜業務規則
-
-### **04. API層開發（即將建立）**
-- **檔案：** `04_API層開發.md`
-- **內容：** Controller類別、RESTful API、DTO設計
-- **重點：** 建立API端點，設計RESTful介面
-
-### **05. 安全與認證（即將建立）**
-- **檔案：** `05_安全與認證.md`
-- **內容：** Spring Security、JWT認證、權限控制
-- **重點：** 實作安全機制，保護API端點
-
-### **06. 測試開發（即將建立）**
-- **檔案：** `06_測試開發.md`
-- **內容：** 單元測試、整合測試、測試最佳實踐
-- **重點：** 確保程式碼品質，提高系統穩定性
-
-### **07. 權限控制建立**
-- **檔案：** `07_階段7_權限控制建立.md`
-- **內容：** Spring Security、JWT認證、權限控制
-- **重點：** 實作安全機制，保護API端點
-
-### **08. Java套件學習**
-- **檔案：** `java-packages/` 目錄
-- **內容：** Lombok、Spring Data JPA、Spring Security、JWT、Optional等套件詳解
-- **重點：** 深入學習各套件的使用方法和最佳實踐
-
-### **09. Swagger API文檔建立**
-- **檔案：** `11_階段11_Swagger_API文檔建立.md`
-- **內容：** Springdoc OpenAPI、API文檔註解、Swagger UI配置
-- **重點：** 建立完整的API文檔系統
-
-### **10. Spring Scheduled Cronjob實作**
-- **檔案：** `12_階段12_Spring_Scheduled_Cronjob實作.md`
-- **內容：** @Scheduled註解、Cron表達式、定時任務實作
-- **重點：** 建立自動化的業務流程
+4. **部署與監控**
+   - 生產環境部署
+   - 監控系統建立
+   - 日誌管理系統
 
 ---
 
-## 🎓 **學習路徑建議**
-
-### **初學者路徑**
-1. **環境問題解決** → 確保開發環境正常
-2. **專案初始化** → 理解Spring Boot基礎
-3. **Entity層建立** → 學習JPA實體設計
-4. **Repository層建立** → 學習資料庫操作
-5. **Service層建立** → 實作業務邏輯
-6. **外部API整合** → 學習外部服務整合
-7. **Controller層建立** → 建立對外API介面
-8. **權限控制建立** → 保護系統安全
-9. **PRD業務規則實作** → 實作完整業務流程
-10. **Swagger API文檔建立** → 建立API文檔
-11. **Spring Scheduled Cronjob實作** → 建立自動化流程
-
-### **有經驗開發者路徑**
-- 可以跳過環境問題解決
-- 重點關注Spring Boot特有概念
-- 深入學習最佳實踐
-
----
-
-## 🛠️ **技術棧學習**
-
-### **核心技術**
-- **Java 17**：現代Java語言特性
-- **Spring Boot 3.x**：企業級框架
-- **Spring Data JPA**：資料庫操作
-- **Spring Security**：安全認證
-- **Spring Scheduled**：定時任務框架
-- **PostgreSQL**：關聯式資料庫
-
-### **開發工具**
-- **Maven**：專案建置工具
-- **Docker**：容器化技術
-- **JUnit 5**：測試框架
-- **Swagger**：API文件
-
-### **設計模式**
-- **分層架構**：Controller → Service → Repository
-- **依賴注入**：Spring IoC容器
-- **RESTful API**：Web服務設計
-- **JWT認證**：無狀態認證
-- **定時任務**：自動化業務流程
-
----
-
-## 📊 **學習進度追蹤**
-
-### **階段0：環境準備**
-- [x] 環境問題解決
-- [x] 專案初始化與環境準備
-- [ ] Docker環境測試
-
-### **階段1：資料庫層開發**
-- [ ] Entity類別建立
-- [ ] Repository介面建立
-- [ ] 資料庫連線測試
-
-### **階段2：業務邏輯層開發**
-- [ ] Service類別建立
-- [ ] 業務規則實作
-- [ ] 外部API整合
-
-### **階段3：API層開發**
-- [ ] Controller類別建立
-- [ ] RESTful API設計
-- [ ] DTO類別建立
-
-### **階段4：安全與認證**
-- [ ] Spring Security配置
-- [ ] JWT認證實作
-- [ ] 權限控制
-
-### **階段5：測試與文件**
-- [ ] 單元測試
-- [ ] 整合測試
-- [ ] API文件生成
-
----
-
-## 🎯 **學習成果**
-
-### **完成後您將能夠：**
-- ✅ 理解Spring Boot架構和最佳實踐
-- ✅ 實作完整的RESTful API
-- ✅ 設計和操作資料庫
-- ✅ 實作安全認證機制
-- ✅ 撰寫高品質的測試
-- ✅ 使用Docker部署應用程式
-- ✅ 生成API文件
-
-### **專案特色：**
-- 🏗️ **完整的分層架構**
-- 🔐 **安全的認證機制**
-- 📊 **完整的資料庫設計**
-- 🧪 **全面的測試覆蓋**
-- 📚 **詳細的API文件**
-- 🐳 **容器化部署**
-
----
-
-## 💡 **學習建議**
-
-### **1. 循序漸進**
-- 按照文件順序學習
-- 每個階段都要實際動手實作
-- 遇到問題先查看對應的學習文件
-
-### **2. 動手實作**
-- 不要只看文件，要實際寫程式碼
-- 嘗試修改和擴展功能
-- 理解每個步驟的原因
-
-### **3. 記錄問題**
-- 記錄學習過程中遇到的問題
-- 整理解決方案
-- 建立自己的知識庫
-
-### **4. 深入理解**
-- 不只是會用，要理解原理
-- 了解Spring Boot的自動配置
-- 掌握設計模式和最佳實踐
-
----
-
-## 🔗 **相關資源**
-
-### **官方文件**
-- [Spring Boot官方文件](https://spring.io/projects/spring-boot)
-- [Spring Data JPA文件](https://spring.io/projects/spring-data-jpa)
-- [Spring Security文件](https://spring.io/projects/spring-security)
-
-### **學習資源**
-- [Spring Boot Guides](https://spring.io/guides)
-- [Spring Boot Tutorial](https://www.baeldung.com/spring-boot)
-- [Docker官方文件](https://docs.docker.com/)
-
-### **工具資源**
-- [Maven官方文件](https://maven.apache.org/guides/)
-- [PostgreSQL文件](https://www.postgresql.org/docs/)
-- [Swagger UI](https://swagger.io/tools/swagger-ui/)
-
----
-
-## 📞 **學習支援**
-
-### **遇到問題時：**
-1. 先查看對應的學習文件
-2. 檢查錯誤訊息和日誌
-3. 參考官方文件
-4. 在社群中尋求幫助
-
-### **學習社群：**
-- Spring Boot官方論壇
-- Stack Overflow
-- GitHub Issues
-
----
-
-**準備好開始您的Spring Boot學習之旅了嗎？讓我們從第一個文件開始！**
+*最後更新: 2025-08-23*

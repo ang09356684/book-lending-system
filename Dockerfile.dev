@@ -16,5 +16,5 @@ COPY src ./src
 # 暴露端口
 EXPOSE 8080 5005
 
-# 開發模式命令
-CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'"]
+# 開發模式命令 - 簡化版本
+CMD ["mvn", "spring-boot:run"]

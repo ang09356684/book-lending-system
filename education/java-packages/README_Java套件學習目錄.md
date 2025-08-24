@@ -80,6 +80,30 @@
   - 測試便利性對比
   - 最佳實踐選擇
 
+### **9. Java Optional方法詳解**
+- **檔案**: `08_Java_Optional方法詳解.md`
+- **用途**: 安全處理空值，避免NullPointerException
+- **學習重點**:
+  - Optional的基本使用
+  - 常用方法詳解
+  - 最佳實踐和常見陷阱
+
+### **10. Springdoc OpenAPI套件說明**
+- **檔案**: `09_Springdoc_OpenAPI套件說明.md`
+- **用途**: 自動生成API文件
+- **學習重點**:
+  - Swagger UI的使用
+  - API註解的撰寫
+  - 文件配置和自定義
+
+### **11. 單元測試套件說明**
+- **檔案**: `10_單元測試套件說明.md`
+- **用途**: 建立完整的測試覆蓋
+- **學習重點**:
+  - JUnit 5、Mockito、Spring Boot Test
+  - H2 Database、JaCoCo
+  - 測試最佳實踐和常見問題
+
 ---
 
 ## 🎯 **學習順序建議**
@@ -95,7 +119,9 @@
 6. **JWT** - 認證機制
 
 ### **第三階段：工具套件**
-7. **Springdoc OpenAPI** - API 文件
+7. **Java Optional** - 空值安全處理
+8. **Springdoc OpenAPI** - API 文件
+9. **單元測試套件** - 測試覆蓋
 
 ---
 
@@ -147,9 +173,11 @@ touch TestJPA.java
 - [x] Spring Data JPA 實作原理
 - [x] Spring Bean註冊與依賴注入
 - [x] 依賴注入方式對比
+- [x] Java Optional方法詳解
+- [x] Springdoc OpenAPI 套件說明
+- [x] 單元測試套件說明
 - [ ] Spring Security 套件說明
 - [ ] JWT 套件說明
-- [ ] Springdoc OpenAPI 套件說明
 
 ### **學習筆記**
 在學習過程中，建議記錄：

@@ -31,24 +31,24 @@ public class ExternalApiService {
     }
     
     /**
-     * Verify librarian identity with external system (Mock implementation)
+     * Verify librarian identity with external system
      * 
      * @param librarianId The librarian identification code
      * @return true if verification successful, false otherwise
      */
     public boolean verifyLibrarian(String librarianId) {
-        // Mock verification logic: librarianId must contain uppercase 'L'
+        // Mock verification logic: librarianId must start with uppercase 'L'
         if (librarianId == null || librarianId.trim().isEmpty()) {
             System.out.println("External API verification failed: librarianId is null or empty");
             return false;
         }
         
-        boolean isValid = librarianId.contains("L");
+        boolean isValid = librarianId.startsWith("L");
         
         if (isValid) {
             System.out.println("External API verification successful for librarianId: " + librarianId);
         } else {
-            System.out.println("External API verification failed for librarianId: " + librarianId + " (must contain uppercase 'L')");
+            System.out.println("External API verification failed for librarianId: " + librarianId + " (must start with 'L')");
         }
         
         return isValid;

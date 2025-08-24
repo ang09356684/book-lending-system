@@ -1,6 +1,6 @@
 # Online Library Management System - Makefile
 
-.PHONY: help start stop restart build clean db-init db-reset
+.PHONY: help start stop restart build clean db-init db-reset test
 
 # Default target
 help:
@@ -13,6 +13,7 @@ help:
 	@echo "  db-init   - Initialize database"
 	@echo "  db-reset  - Reset database (delete all data)"
 	@echo "  db-clear  - Clear database tables (keep container)"
+	@echo "  test      - Run all unit tests with coverage report"
 
 # Start all services
 start:
@@ -31,8 +32,10 @@ build:
 
 # Clean all containers and data
 clean:
-	docker-compose -f docker-compose.dev.yml down -v
+	@echo "Cleaning all containers and data..."
+	docker-compose -f docker-compose.dev.yml down -v --remove-orphans
 	docker system prune -f
+	@echo "Clean completed!"
 
 # Initialize database
 db-init:
@@ -70,3 +73,11 @@ logs-app:
 # View database logs
 logs-db:
 	docker-compose -f docker-compose.dev.yml logs -f postgres
+
+# Run all unit tests with coverage report
+test:
+	@echo "Running all unit tests with coverage report..."
+	docker-compose -f docker-compose.dev.yml exec app-dev mvn test jacoco:report
+	@echo "All tests completed!"
+	@echo "Coverage report generated in target/site/jacoco/index.html"
+	@echo "To view coverage report, open: target/site/jacoco/index.html"
