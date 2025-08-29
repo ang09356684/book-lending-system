@@ -30,7 +30,7 @@ import java.util.Map;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 @Validated
 @Tag(name = "Users", description = "User management endpoints")
 @SecurityRequirement(name = "Bearer Authentication")

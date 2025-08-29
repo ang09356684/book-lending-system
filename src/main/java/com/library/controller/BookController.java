@@ -38,7 +38,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/books")
+@RequestMapping("/api/v1/books")
 @Validated
 @Tag(name = "Books", description = "Book management endpoints")
 public class BookController {

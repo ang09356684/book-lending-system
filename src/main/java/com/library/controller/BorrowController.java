@@ -29,7 +29,7 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/borrows")
+@RequestMapping("/api/v1/borrows")
 @Validated
 @Tag(name = "Borrows", description = "Book borrowing and returning endpoints")
 @SecurityRequirement(name = "Bearer Authentication")

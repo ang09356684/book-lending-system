@@ -34,7 +34,7 @@ import jakarta.validation.Valid;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 @Validated
 @Tag(name = "Authentication", description = "User authentication and registration endpoints")
 public class AuthController {

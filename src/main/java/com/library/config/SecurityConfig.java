@@ -43,15 +43,16 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints - no authentication required
-                .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/books/**").permitAll()
-                .requestMatchers("/libraries/**").permitAll()
+                .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/books/**").permitAll()
+                .requestMatchers("/api/v1/libraries/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 
                 // Endpoints requiring authentication
-                .requestMatchers("/borrows/**").authenticated()
-                .requestMatchers("/users/**").authenticated()
+                .requestMatchers("/api/v1/borrows/**").authenticated()
+                .requestMatchers("/api/v1/users/**").authenticated()
+                .requestMatchers("/api/v1/notifications/**").authenticated()
                 
                 // Endpoints requiring specific roles
                 .requestMatchers("/admin/**").hasRole("ADMIN")

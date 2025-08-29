@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Tag(name = "Notifications", description = "Notification management and testing endpoints")
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/api/v1/notifications")
 public class NotificationController {
     
     private final ScheduledNotificationService scheduledNotificationService;
