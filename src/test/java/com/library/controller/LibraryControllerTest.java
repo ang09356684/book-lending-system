@@ -77,7 +77,7 @@ class LibraryControllerTest {
         when(libraryService.createLibrary(anyString(), anyString(), anyString())).thenReturn(testLibrary);
 
         // Act & Assert
-        mockMvc.perform(post("/libraries")
+        mockMvc.perform(post("/api/v1/libraries")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createLibraryRequest)))
                 .andExpect(status().isCreated())
@@ -96,7 +96,7 @@ class LibraryControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testCreateLibrary_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(post("/libraries")
+        mockMvc.perform(post("/api/v1/libraries")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createLibraryRequest)))
                 .andExpect(status().isForbidden());
@@ -112,7 +112,7 @@ class LibraryControllerTest {
         when(libraryService.findAll()).thenReturn(libraries);
 
         // Act & Assert
-        mockMvc.perform(get("/libraries"))
+        mockMvc.perform(get("/api/v1/libraries"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -129,7 +129,7 @@ class LibraryControllerTest {
         when(libraryService.findById(1L)).thenReturn(testLibrary);
 
         // Act & Assert
-        mockMvc.perform(get("/libraries/1"))
+        mockMvc.perform(get("/api/v1/libraries/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
@@ -145,7 +145,7 @@ class LibraryControllerTest {
         when(libraryService.updateLibrary(eq(1L), anyString(), anyString(), anyString())).thenReturn(testLibrary);
 
         // Act & Assert
-        mockMvc.perform(put("/libraries/1")
+        mockMvc.perform(put("/api/v1/libraries/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateLibraryRequest)))
                 .andExpect(status().isOk())
@@ -164,7 +164,7 @@ class LibraryControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testUpdateLibrary_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(put("/libraries/1")
+        mockMvc.perform(put("/api/v1/libraries/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateLibraryRequest)))
                 .andExpect(status().isForbidden());
@@ -179,7 +179,7 @@ class LibraryControllerTest {
         doNothing().when(libraryService).deleteLibrary(1L);
 
         // Act & Assert
-        mockMvc.perform(delete("/libraries/1"))
+        mockMvc.perform(delete("/api/v1/libraries/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Library deleted successfully"));
@@ -191,7 +191,7 @@ class LibraryControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testDeleteLibrary_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(delete("/libraries/1"))
+        mockMvc.perform(delete("/api/v1/libraries/1"))
                 .andExpect(status().isForbidden());
 
         verify(libraryService, never()).deleteLibrary(anyLong());

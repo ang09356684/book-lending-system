@@ -35,7 +35,7 @@ class NotificationControllerTest {
         doNothing().when(scheduledNotificationService).checkOverdueNotifications();
 
         // Act & Assert
-        mockMvc.perform(post("/notifications/trigger-overdue-check"))
+        mockMvc.perform(post("/api/v1/notifications/trigger-overdue-check"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Overdue check triggered successfully"));
@@ -47,7 +47,7 @@ class NotificationControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testTriggerOverdueCheck_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(post("/notifications/trigger-overdue-check"))
+        mockMvc.perform(post("/api/v1/notifications/trigger-overdue-check"))
                 .andExpect(status().isForbidden());
 
         verify(scheduledNotificationService, never()).checkOverdueNotifications();

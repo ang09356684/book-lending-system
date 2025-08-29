@@ -88,7 +88,6 @@ class BorrowControllerTest {
         testBorrowRecord.setStatus("BORROWED");
 
         borrowRequest = new BorrowRequest();
-        borrowRequest.setUserId(1L);
         borrowRequest.setBookCopyId(1L);
     }
 
@@ -100,7 +99,7 @@ class BorrowControllerTest {
         when(borrowService.borrowBook(1L, 1L)).thenReturn(testBorrowRecord);
 
         // Act & Assert
-        mockMvc.perform(post("/borrowings")
+        mockMvc.perform(post("/api/v1/borrows")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(borrowRequest)))
                 .andExpect(status().isOk())
@@ -117,7 +116,7 @@ class BorrowControllerTest {
         when(userService.findByEmail("john@example.com")).thenReturn(java.util.Optional.empty());
 
         // Act & Assert
-        mockMvc.perform(post("/borrowings")
+        mockMvc.perform(post("/api/v1/borrows")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(borrowRequest)))
                 .andExpect(status().isNotFound());
@@ -133,8 +132,7 @@ class BorrowControllerTest {
         when(borrowService.getActiveBorrows(1L)).thenReturn(Arrays.asList(testBorrowRecord));
 
         // Act & Assert
-        mockMvc.perform(get("/borrowings")
-                .param("userId", "1"))
+        mockMvc.perform(get("/api/v1/borrows"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -151,7 +149,7 @@ class BorrowControllerTest {
         when(borrowService.returnBook(1L)).thenReturn(testBorrowRecord);
 
         // Act & Assert
-        mockMvc.perform(put("/borrowings/1/return"))
+        mockMvc.perform(post("/api/v1/borrows/1/return"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1));

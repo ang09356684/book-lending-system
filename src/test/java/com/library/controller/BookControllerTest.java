@@ -85,7 +85,7 @@ class BookControllerTest {
             .thenReturn(testBook);
 
         // Act & Assert
-        mockMvc.perform(post("/books")
+        mockMvc.perform(post("/api/v1/api/v1/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createBookRequest)))
                 .andExpect(status().isCreated())
@@ -111,7 +111,7 @@ class BookControllerTest {
         // 不設定必要欄位，應該會觸發驗證錯誤
 
         // Act & Assert
-        mockMvc.perform(post("/books")
+        mockMvc.perform(post("/api/v1/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -125,7 +125,7 @@ class BookControllerTest {
             .thenReturn(testBook);
 
         // Act & Assert - 非館員應該被拒絕存取
-        mockMvc.perform(post("/books")
+        mockMvc.perform(post("/api/v1/books")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createBookRequest)))
                 .andExpect(status().isForbidden());
@@ -140,7 +140,7 @@ class BookControllerTest {
         when(bookService.findById(1L)).thenReturn(testBook);
 
         // Act & Assert
-        mockMvc.perform(get("/books/1"))
+        mockMvc.perform(get("/api/v1/books/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
@@ -156,7 +156,7 @@ class BookControllerTest {
         when(bookService.findById(999L)).thenThrow(new RuntimeException("Book not found"));
 
         // Act & Assert
-        mockMvc.perform(get("/books/999"))
+        mockMvc.perform(get("/api/v1/books/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.message").value("Book not found"));
@@ -173,7 +173,7 @@ class BookControllerTest {
             .thenReturn(books);
 
         // Act & Assert
-        mockMvc.perform(get("/books/search")
+        mockMvc.perform(get("/api/v1/books/search")
                 .param("title", "Test")
                 .param("author", "Author")
                 .param("publishedYear", "2023"))
@@ -195,7 +195,7 @@ class BookControllerTest {
             .thenReturn(books);
 
         // Act & Assert
-        mockMvc.perform(get("/books/search"))
+        mockMvc.perform(get("/api/v1/books/search"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -212,7 +212,7 @@ class BookControllerTest {
             .thenReturn(testBook);
 
         // Act & Assert
-        mockMvc.perform(put("/books/1")
+        mockMvc.perform(put("/api/v1/books/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateBookRequest)))
                 .andExpect(status().isOk())
@@ -233,7 +233,7 @@ class BookControllerTest {
     @WithMockUser(roles = "MEMBER")
     void testUpdateBook_AccessDenied() throws Exception {
         // Act & Assert
-        mockMvc.perform(put("/books/1")
+        mockMvc.perform(put("/api/v1/books/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateBookRequest)))
                 .andExpect(status().isForbidden());
@@ -249,7 +249,7 @@ class BookControllerTest {
         when(bookService.getAllBooks(0, 10)).thenReturn(books);
 
         // Act & Assert
-        mockMvc.perform(get("/books")
+        mockMvc.perform(get("/api/v1/books")
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk())
@@ -268,7 +268,7 @@ class BookControllerTest {
         when(bookService.getAllBooks(0, 20)).thenReturn(books);
 
         // Act & Assert
-        mockMvc.perform(get("/books"))
+        mockMvc.perform(get("/api/v1/books"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray());

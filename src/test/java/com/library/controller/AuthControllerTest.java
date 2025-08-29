@@ -89,7 +89,7 @@ class AuthControllerTest {
             .thenReturn(testUser);
 
         // Act & Assert
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isCreated())
@@ -114,7 +114,7 @@ class AuthControllerTest {
         invalidRequest.setPassword("123"); // Too short password
 
         // Act & Assert
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -127,7 +127,7 @@ class AuthControllerTest {
             .thenThrow(new RuntimeException("Email already exists"));
 
         // Act & Assert
-        mockMvc.perform(post("/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isBadRequest())
@@ -150,7 +150,7 @@ class AuthControllerTest {
             .thenReturn(true);
 
         // Act & Assert
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -170,7 +170,7 @@ class AuthControllerTest {
             .thenReturn(Optional.empty());
 
         // Act & Assert
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized())
@@ -190,7 +190,7 @@ class AuthControllerTest {
             .thenReturn(false);
 
         // Act & Assert
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized())
@@ -209,7 +209,7 @@ class AuthControllerTest {
         invalidRequest.setPassword(""); // Empty password
 
         // Act & Assert
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -234,7 +234,7 @@ class AuthControllerTest {
             .thenReturn(librarianUser);
 
         // Act & Assert
-        mockMvc.perform(post("/auth/register/librarian")
+        mockMvc.perform(post("/api/v1/auth/register/librarian")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(librarianRequest))
                 .param("librarianId", "LIB001"))
@@ -260,7 +260,7 @@ class AuthControllerTest {
             .thenThrow(new RuntimeException("Invalid librarian ID"));
 
         // Act & Assert
-        mockMvc.perform(post("/auth/register/librarian")
+        mockMvc.perform(post("/api/v1/auth/register/librarian")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest))
                 .param("librarianId", "INVALID_ID"))

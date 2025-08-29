@@ -70,7 +70,7 @@ class UserControllerTest {
         when(userService.findByEmail("john@example.com")).thenReturn(java.util.Optional.of(testUser));
 
         // Act & Assert
-        mockMvc.perform(get("/users/current"))
+        mockMvc.perform(get("/api/v1/users/current"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
@@ -87,7 +87,7 @@ class UserControllerTest {
         when(userService.findByEmail("john@example.com")).thenReturn(java.util.Optional.empty());
 
         // Act & Assert
-        mockMvc.perform(get("/users/current"))
+        mockMvc.perform(get("/api/v1/users/current"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false));
 
@@ -101,7 +101,7 @@ class UserControllerTest {
         when(userService.findById(1L)).thenReturn(testUser);
 
         // Act & Assert
-        mockMvc.perform(get("/users/1"))
+        mockMvc.perform(get("/api/v1/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
@@ -117,7 +117,7 @@ class UserControllerTest {
         when(userService.findById(999L)).thenReturn(null);
 
         // Act & Assert
-        mockMvc.perform(get("/users/999"))
+        mockMvc.perform(get("/api/v1/users/999"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false));
 
@@ -132,7 +132,7 @@ class UserControllerTest {
             .thenReturn(testUser);
 
         // Act & Assert
-        mockMvc.perform(put("/users/1")
+        mockMvc.perform(put("/api/v1/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateUserRequest)))
                 .andExpect(status().isOk())
@@ -155,7 +155,7 @@ class UserControllerTest {
         invalidRequest.setName(""); // Invalid empty name
 
         // Act & Assert
-        mockMvc.perform(put("/users/1")
+        mockMvc.perform(put("/api/v1/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidRequest)))
                 .andExpect(status().isBadRequest());
@@ -167,7 +167,7 @@ class UserControllerTest {
     @WithMockUser(username = "john@example.com", roles = "MEMBER")
     void testUpdateUser_AccessDenied() throws Exception {
         // Act & Assert - User trying to update another user's data
-        mockMvc.perform(put("/users/2")
+        mockMvc.perform(put("/api/v1/users/2")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateUserRequest)))
                 .andExpect(status().isForbidden());
@@ -183,7 +183,7 @@ class UserControllerTest {
             .thenReturn(testUser);
 
         // Act & Assert - Librarian can update any user
-        mockMvc.perform(put("/users/1")
+        mockMvc.perform(put("/api/v1/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateUserRequest)))
                 .andExpect(status().isOk())
@@ -205,7 +205,7 @@ class UserControllerTest {
         when(userService.findByRole(any(Role.class))).thenReturn(users);
 
         // Act & Assert
-        mockMvc.perform(get("/users/role/MEMBER"))
+        mockMvc.perform(get("/api/v1/users/role/MEMBER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
@@ -219,7 +219,7 @@ class UserControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testGetUsersByRole_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(get("/users/role/MEMBER"))
+        mockMvc.perform(get("/api/v1/users/role/MEMBER"))
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).findByRole(any(Role.class));
@@ -232,7 +232,7 @@ class UserControllerTest {
         when(userService.findByEmail("john@example.com")).thenReturn(java.util.Optional.of(testUser));
 
         // Act & Assert
-        mockMvc.perform(get("/users/email/john@example.com"))
+        mockMvc.perform(get("/api/v1/users/email/john@example.com"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.email").value("john@example.com"));
@@ -244,7 +244,7 @@ class UserControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testGetUserByEmail_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(get("/users/email/john@example.com"))
+        mockMvc.perform(get("/api/v1/users/email/john@example.com"))
                 .andExpect(status().isForbidden());
 
         verify(userService, never()).findByEmail(anyString());
@@ -257,7 +257,7 @@ class UserControllerTest {
         when(userService.updateVerificationStatus(1L, true)).thenReturn(testUser);
 
         // Act & Assert
-        mockMvc.perform(put("/users/1/verification")
+        mockMvc.perform(put("/api/v1/users/1/verification")
                 .param("verified", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -270,7 +270,7 @@ class UserControllerTest {
     @WithMockUser(username = "member@example.com", roles = "MEMBER")
     void testUpdateUserVerification_AccessDenied() throws Exception {
         // Act & Assert - MEMBER role cannot access this endpoint
-        mockMvc.perform(put("/users/1/verification")
+        mockMvc.perform(put("/api/v1/users/1/verification")
                 .param("verified", "true"))
                 .andExpect(status().isForbidden());
 

@@ -8,7 +8,7 @@ help:
 	@echo "  start     - Start all services"
 	@echo "  stop      - Stop all services"
 	@echo "  restart   - Restart all services"
-	@echo "  build     - Rebuild and start services"
+	@echo "  Build     - Build images"
 	@echo "  clean     - Clean all containers and data"
 	@echo "  db-init   - Initialize database"
 	@echo "  db-reset  - Reset database (delete all data)"
@@ -32,9 +32,9 @@ stop:
 # Restart all services
 restart: stop start
 
-# Rebuild and start services
+# Build images
 build:
-	docker-compose -f docker-compose.dev.yml up --build -d
+	docker-compose -f docker-compose.dev.yml build
 
 # Clean all containers and data
 clean:
