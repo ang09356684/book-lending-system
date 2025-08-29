@@ -12,12 +12,10 @@ import lombok.Data;
 @Data
 public class BorrowRequest {
     
-    @NotNull(message = "User ID is required")
-    private Long userId;
-    
     @NotNull(message = "Book copy ID is required")
     private Long bookCopyId;
     
+    // Note: userId is no longer needed as it's automatically extracted from JWT token
     // Note: libraryId is not needed because bookCopyId already contains library information
     // Each BookCopy is associated with a specific library
 }

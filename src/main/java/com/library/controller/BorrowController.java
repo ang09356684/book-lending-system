@@ -4,7 +4,9 @@ import com.library.dto.ApiResponse;
 import com.library.dto.request.BorrowRequest;
 import com.library.dto.response.BorrowRecordResponse;
 import com.library.entity.BorrowRecord;
+import com.library.entity.User;
 import com.library.service.BorrowService;
+import com.library.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,28 +29,31 @@ import java.util.List;
  * @version 1.0.0
  */
 @RestController
-@RequestMapping("/borrowings")
+@RequestMapping("/borrows")
 @Validated
-@Tag(name = "Borrowings", description = "Book borrowing and returning endpoints")
+@Tag(name = "Borrows", description = "Book borrowing and returning endpoints")
 @SecurityRequirement(name = "Bearer Authentication")
 public class BorrowController {
     
     private final BorrowService borrowService;
+    private final UserService userService;
     
-    public BorrowController(BorrowService borrowService) {
+    public BorrowController(BorrowService borrowService, UserService userService) {
         this.borrowService = borrowService;
+        this.userService = userService;
     }
     
     /**
      * Borrow a book
      * 
-     * @param request Borrow request
+     * @param request Borrow request (only bookCopyId needed)
+     * @param authentication Current user authentication
      * @return Borrow record
      */
     @PostMapping
     @Operation(
         summary = "Borrow a book",
-        description = "Borrow a book copy for a user"
+        description = "Borrow a book copy for the current authenticated user"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -78,15 +84,25 @@ public class BorrowController {
         ),
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "404",
-            description = "Book copy or user not found"
+            description = "Book copy not found"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "User not authenticated"
         )
     })
     public ResponseEntity<ApiResponse<BorrowRecordResponse>> borrowBook(
-        @Parameter(description = "Borrow request information", required = true)
-        @RequestBody @Valid BorrowRequest request
+        @Parameter(description = "Borrow request information (only bookCopyId required)", required = true)
+        @RequestBody @Valid BorrowRequest request,
+        Authentication authentication
     ) {
+        // Get current user from JWT token
+        String currentUserEmail = authentication.getName();
+        User currentUser = userService.findByEmail(currentUserEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
         BorrowRecord record = borrowService.borrowBook(
-            request.getUserId(),
+            currentUser.getId(),  // Use current user ID instead of userId from request
             request.getBookCopyId()
         );
         
@@ -100,7 +116,7 @@ public class BorrowController {
      * @param recordId Borrow record ID
      * @return Updated borrow record
      */
-    @PutMapping("/{recordId}/return")
+    @PostMapping("/{recordId}/return")
     @Operation(
         summary = "Return a book",
         description = "Return a borrowed book"
@@ -131,27 +147,35 @@ public class BorrowController {
 
     
     /**
-     * Get borrow records for a user
+     * Get borrow records for the current authenticated user
      * 
-     * @param userId User ID
+     * @param authentication Current user authentication
      * @return List of borrow records
      */
     @GetMapping
     @Operation(
         summary = "Get borrow records",
-        description = "Get borrow records for a specific user"
+        description = "Get borrow records for the current authenticated user"
     )
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "200",
             description = "Borrow records retrieved successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "User not authenticated"
         )
     })
     public ResponseEntity<ApiResponse<List<BorrowRecordResponse>>> getBorrowRecords(
-        @Parameter(description = "User ID (required)", example = "1")
-        @RequestParam Long userId
+        Authentication authentication
     ) {
-        List<BorrowRecord> records = borrowService.getActiveBorrows(userId);
+        // Get current user from JWT token
+        String currentUserEmail = authentication.getName();
+        User currentUser = userService.findByEmail(currentUserEmail)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        List<BorrowRecord> records = borrowService.getActiveBorrows(currentUser.getId());
         
         List<BorrowRecordResponse> responses = records.stream()
             .map(this::convertToBorrowRecordResponse)
