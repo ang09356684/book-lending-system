@@ -44,7 +44,7 @@ public class NotificationController {
             
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                .body(ApiResponse.error("Failed to trigger overdue notification check: " + e.getMessage()));
+                .body(ApiResponse.error("INTERNAL_SERVER_ERROR", "Failed to trigger overdue notification check: " + e.getMessage()));
         }
     }
 }

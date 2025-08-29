@@ -72,7 +72,7 @@ public class UserController {
         // Check permissions: users can only view their own data, librarians can view all users
         User currentUser = getCurrentUser();
         if (!currentUser.getRole().getName().equals("LIBRARIAN") && !currentUser.getId().equals(id)) {
-            return ResponseEntity.status(403).body(ApiResponse.error("Access denied"));
+            return ResponseEntity.status(403).body(ApiResponse.error("FORBIDDEN", "Access denied. You can only view your own information."));
         }
         
         User user = userService.findById(id);
@@ -322,7 +322,7 @@ public class UserController {
         // Check permissions: users can only update their own data, librarians can update all users
         User currentUser = getCurrentUser();
         if (!currentUser.getRole().getName().equals("LIBRARIAN") && !currentUser.getId().equals(id)) {
-            return ResponseEntity.status(403).body(ApiResponse.error("Access denied. You can only update your own information."));
+            return ResponseEntity.status(403).body(ApiResponse.error("FORBIDDEN", "Access denied. You can only update your own information."));
         }
         
         User user = userService.updateUser(id, request.getName(), request.getEmail(), request.getPassword());

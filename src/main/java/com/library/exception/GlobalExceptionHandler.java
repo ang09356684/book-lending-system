@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
         
         String errorMessage = String.join(", ", errors);
         return ResponseEntity.badRequest()
-            .body(ApiResponse.error("Validation failed", errorMessage));
+            .body(ApiResponse.error("VALIDATION_ERROR", errorMessage));
     }
     
     /**
@@ -41,8 +41,22 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<?>> handleRuntimeException(RuntimeException ex) {
-        return ResponseEntity.badRequest()
-            .body(ApiResponse.error("Business error", ex.getMessage()));
+        String message = ex.getMessage();
+        
+        // Determine error type based on message content
+        if (message.contains("Access denied") || message.contains("Only librarians")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error("FORBIDDEN", message));
+        } else if (message.contains("not found")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error("NOT_FOUND", message));
+        } else if (message.contains("already") || message.contains("Limit reached")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error("CONFLICT", message));
+        } else {
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("BUSINESS_ERROR", message));
+        }
     }
     
     /**
@@ -51,6 +65,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ApiResponse.error("Internal server error", "An unexpected error occurred"));
+            .body(ApiResponse.error("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
     }
 }
