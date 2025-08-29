@@ -10,6 +10,7 @@ A comprehensive Spring Boot application for managing library operations includin
 - [Database Schema](#database-schema)
 - [Project Structure](#project-structure)
 - [Quick Start](#quick-start)
+- [Scheduled Tasks](#-scheduled-tasks)
 - [API Documentation](#api-documentation)
 
 ## 🎯 Background
@@ -31,6 +32,7 @@ This system modernizes traditional library operations by providing a digital int
 - **Borrowing System**: Check-out, return, and overdue tracking
 - **Library Management**: Multi-branch library support with individual collections
 - **Notification System**: Automated overdue reminders and system notifications
+- **Scheduled Tasks**: Automated background processes for overdue notifications
 - **Search & Discovery**: Book search by title, author, category, and availability
 
 ### User Roles
@@ -41,6 +43,7 @@ This system modernizes traditional library operations by providing a digital int
 - Users can borrow up to 5 books simultaneously
 - Books are borrowed for 30 days by default
 - Overdue books trigger automatic notifications
+- **Scheduled Notifications**: System automatically checks for books due in 5 days and sends reminder notifications
 - Librarians can manage book collections and user accounts
 - Book copies are tracked individually across different library branches
 
@@ -52,6 +55,7 @@ This system modernizes traditional library operations by providing a digital int
 - **Database**: PostgreSQL 17
 - **ORM**: Spring Data JPA with Hibernate
 - **Security**: Spring Security with JWT authentication
+- **Scheduling**: Spring Scheduling with Cron expressions
 - **API Documentation**: SpringDoc OpenAPI 3 (Swagger)
 
 ### Development Tools
@@ -173,6 +177,18 @@ After logging into pgAdmin, add a server connection:
 ## 📝 License
 
 This project is developed for educational and demonstration purposes.
+---
+
+## ⏰ Scheduled Tasks
+
+### Overdue Notification System
+
+Automated task that checks for books due in 5 days and sends reminder notifications.
+
+- **File**: `src/main/java/com/library/service/ScheduledNotificationService.java`
+- **Cron**: `"0 * * * * *"` (every minute - development mode)
+- **Purpose**: Check borrow records due in 5 days and send notifications via `System.out.println()`
+
 ---
 
 **Ready to explore? Start with the API documentation at http://localhost:8080/api/swagger-ui/index.html**
