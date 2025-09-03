@@ -174,10 +174,6 @@ After logging into pgAdmin, add a server connection:
 | Librarian Admin | librarian@library.com | password | LIB001 | Verified |
 
 
-## 📝 License
-
-This project is developed for educational and demonstration purposes.
----
 
 ## ⏰ Scheduled Tasks
 
@@ -189,6 +185,11 @@ Automated task that checks for books due in 5 days and sends reminder notificati
 - **Cron**: `"0 * * * * *"` (every minute - development mode)
 - **Purpose**: Check borrow records due in 5 days and send notifications via `System.out.println()`
 
+---
+
+## 📝 License
+
+This project is developed for educational and demonstration purposes.
 ---
 
 **Ready to explore? Start with the API documentation at http://localhost:8080/api/swagger-ui/index.html**
