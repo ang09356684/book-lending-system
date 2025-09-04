@@ -173,6 +173,37 @@ After logging into pgAdmin, add a server connection:
 |------|-------|----------|--------------|--------|
 | Librarian Admin | librarian@library.com | password | LIB001 | Verified |
 
+### Testing Workflow
+
+#### Step 1: Login via Swagger UI
+1. Open the API documentation: http://localhost:8080/api/swagger-ui/index.html
+2. Find the **Auth Controller** section
+3. Click on the **POST /api/v1/auth/login** endpoint
+4. Click **Try it out**
+5. Use one of the test accounts above:
+   ```json
+   {
+     "email": "librarian@library.com",
+     "password": "password"
+   }
+   ```
+6. Click **Execute** to get the authentication token
+
+#### Step 2: Authorize in Swagger UI
+1. Copy the `token` from the login response
+2. Click the **Authorize** button in the top-right corner
+3. Enter your token in the format: `Bearer <your-token>`
+4. Click **Authorize** and close the popup
+
+#### Step 3: Test API Operations
+Now you can test all API endpoints with authentication:
+- Book management (search, borrow, return)
+- User management
+- Library operations
+- And more...
+
+**Note**: The token will be automatically included in all subsequent API requests within the Swagger UI session.
+
 
 
 ## ⏰ Scheduled Tasks

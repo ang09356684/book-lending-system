@@ -136,30 +136,8 @@ CREATE TABLE IF NOT EXISTS notifications (
 -- 7. Initial Data
 -- ========================================
 
--- Role data
-INSERT INTO roles (name, description) VALUES 
-('LIBRARIAN', 'Librarian - Can manage book data'),
-('MEMBER', 'General user - Can search books, borrow and return')
-ON CONFLICT (name) DO NOTHING;
-
--- User data
-INSERT INTO users (name, password, email, role_id, librarian_id, is_verified) VALUES 
--- General users (MEMBER role)
-('John Doe', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'john.doe@example.com', 
- (SELECT id FROM roles WHERE name = 'MEMBER'), NULL, FALSE),
-('Jane Smith', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jane.smith@example.com', 
- (SELECT id FROM roles WHERE name = 'MEMBER'), NULL, FALSE),
--- Librarian (LIBRARIAN role, verified)
-('Librarian Admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'librarian@library.com', 
- (SELECT id FROM roles WHERE name = 'LIBRARIAN'), 'LIB001', TRUE)
-ON CONFLICT (email) DO NOTHING;
-
--- Library data
-INSERT INTO libraries (name, address, phone) VALUES 
-('Main Library', 'Taipei City', '02-2361-9132'),
-('Branch A', 'Taipei City', '02-2707-1008'),
-('Branch B', 'Taipei City', '02-2720-8889')
-ON CONFLICT (name) DO NOTHING;
+-- Initial data is provided by src/main/resources/data.sql
+-- This file contains schema definition only
 
 -- ========================================
 -- 8. Common Query Examples
