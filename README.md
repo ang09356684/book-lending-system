@@ -137,8 +137,8 @@ make db-clear
 ```
 
 ### Access Services
-- **Application**: http://localhost:8080/api
-- **API Documentation**: http://localhost:8080/api/swagger-ui/index.html
+- **Application**: http://localhost:8080
+- **API Documentation**: http://localhost:8080/swagger-ui/index.html
 - **Database Admin**: http://localhost:5050 (pgAdmin)
 
 
@@ -176,7 +176,7 @@ After logging into pgAdmin, add a server connection:
 ### Testing Workflow
 
 #### Step 1: Login via Swagger UI
-1. Open the API documentation: http://localhost:8080/api/swagger-ui/index.html
+1. Open the API documentation: http://localhost:8080/swagger-ui/index.html
 2. Find the **Auth Controller** section
 3. Click on the **POST /api/v1/auth/login** endpoint
 4. Click **Try it out**
@@ -223,4 +223,4 @@ Automated task that checks for books due in 5 days and sends reminder notificati
 This project is developed for educational and demonstration purposes.
 ---
 
-**Ready to explore? Start with the API documentation at http://localhost:8080/api/swagger-ui/index.html**
+**Ready to explore? Start with the API documentation at http://localhost:8080/swagger-ui/index.html**

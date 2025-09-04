@@ -48,10 +48,10 @@ public class OpenApiConfig {
     private List<Server> servers() {
         return List.of(
                 new Server()
-                        .url("http://localhost:8080/api")
+                        .url("http://localhost:8080")
                         .description("Development Server"),
                 new Server()
-                        .url("https://api.library.com/api")
+                        .url("https://api.library.com")
                         .description("Production Server")
         );
     }
