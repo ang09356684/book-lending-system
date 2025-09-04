@@ -121,7 +121,7 @@ library/
 ```bash
 # Clone and setup
 git clone <repository-url>
-cd library
+cd book-lending-system
 
 # Build and start services
 make build
